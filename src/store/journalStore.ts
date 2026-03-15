@@ -1,0 +1,179 @@
+import { create } from 'zustand';
+import type { JournalEntry, AppSettings } from '../types';
+import * as db from '../utils/db';
+import { publishEntries, fetchPublishedEntries } from '../utils/github';
+
+interface JournalState {
+  entries: JournalEntry[];
+  selectedEntry: JournalEntry | null;
+  settings: AppSettings;
+  isLoading: boolean;
+  isPublishing: boolean;
+  viewMode: 'reader' | 'author';
+  mapCenter: [number, number];
+  mapZoom: number;
+  searchQuery: string;
+  filterMood: string | null;
+  showEntryDetail: boolean;
+
+  // Actions
+  loadEntries: () => Promise<void>;
+  loadPublishedEntries: () => Promise<void>;
+  loadSettings: () => Promise<void>;
+  addEntry: (entry: JournalEntry) => Promise<void>;
+  updateEntry: (entry: JournalEntry) => Promise<void>;
+  deleteEntry: (id: string) => Promise<void>;
+  selectEntry: (entry: JournalEntry | null) => void;
+  setViewMode: (mode: 'reader' | 'author') => void;
+  setMapCenter: (center: [number, number]) => void;
+  setMapZoom: (zoom: number) => void;
+  setSearchQuery: (query: string) => void;
+  setFilterMood: (mood: string | null) => void;
+  setShowEntryDetail: (show: boolean) => void;
+  saveSettings: (settings: AppSettings) => Promise<void>;
+  publish: () => Promise<boolean>;
+  flyToEntry: (entry: JournalEntry) => void;
+}
+
+export const useJournalStore = create<JournalState>((set, get) => ({
+  entries: [],
+  selectedEntry: null,
+  settings: {
+    authorName: 'Traveler',
+    mapStyle: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+  },
+  isLoading: false,
+  isPublishing: false,
+  viewMode: 'reader',
+  mapCenter: [20, 30],
+  mapZoom: 2.5,
+  searchQuery: '',
+  filterMood: null,
+  showEntryDetail: false,
+
+  loadEntries: async () => {
+    set({ isLoading: true });
+    const entries = await db.getAllEntries();
+    set({ entries, isLoading: false });
+  },
+
+  loadPublishedEntries: async () => {
+    set({ isLoading: true });
+    const { settings } = get();
+    if (settings.githubOwner && settings.githubRepo) {
+      const entries = await fetchPublishedEntries(settings.githubOwner, settings.githubRepo);
+      if (entries.length > 0) {
+        set({ entries, isLoading: false });
+        return;
+      }
+    }
+    // Fallback: try loading from bundled data
+    try {
+      const res = await fetch(import.meta.env.BASE_URL + 'data/entries.json');
+      if (res.ok) {
+        const data = await res.json();
+        set({ entries: data.entries || [], isLoading: false });
+        return;
+      }
+    } catch { /* ignore */ }
+
+    // Fallback: load from local DB
+    const entries = await db.getAllEntries();
+    set({ entries, isLoading: false });
+  },
+
+  loadSettings: async () => {
+    const settings = await db.getSettings();
+    set({ settings });
+  },
+
+  addEntry: async (entry) => {
+    await db.saveEntry(entry);
+    const entries = await db.getAllEntries();
+    set({ entries });
+  },
+
+  updateEntry: async (entry) => {
+    await db.saveEntry({ ...entry, updatedAt: new Date().toISOString() });
+    const entries = await db.getAllEntries();
+    set({ entries, selectedEntry: entry });
+  },
+
+  deleteEntry: async (id) => {
+    await db.deleteEntry(id);
+    const entries = await db.getAllEntries();
+    set({ entries, selectedEntry: null, showEntryDetail: false });
+  },
+
+  selectEntry: (entry) => {
+    set({ selectedEntry: entry, showEntryDetail: !!entry });
+  },
+
+  setViewMode: (mode) => set({ viewMode: mode }),
+  setMapCenter: (center) => set({ mapCenter: center }),
+  setMapZoom: (zoom) => set({ mapZoom: zoom }),
+  setSearchQuery: (query) => set({ searchQuery: query }),
+  setFilterMood: (mood) => set({ filterMood: mood }),
+  setShowEntryDetail: (show) => set({ showEntryDetail: show }),
+
+  saveSettings: async (settings) => {
+    await db.saveSettings(settings);
+    set({ settings });
+  },
+
+  publish: async () => {
+    const { settings, entries } = get();
+    if (!settings.githubToken || !settings.githubOwner || !settings.githubRepo) {
+      return false;
+    }
+    set({ isPublishing: true });
+    const published = entries.filter((e) => e.isPublished);
+    const success = await publishEntries(
+      {
+        token: settings.githubToken,
+        owner: settings.githubOwner,
+        repo: settings.githubRepo,
+      },
+      published
+    );
+    set({ isPublishing: false });
+    return success;
+  },
+
+  flyToEntry: (entry) => {
+    set({
+      mapCenter: [entry.location.lng, entry.location.lat],
+      mapZoom: 10,
+      selectedEntry: entry,
+      showEntryDetail: true,
+    });
+  },
+}));
+
+// Derived selectors
+export function useFilteredEntries(): JournalEntry[] {
+  const entries = useJournalStore((s) => s.entries);
+  const searchQuery = useJournalStore((s) => s.searchQuery);
+  const filterMood = useJournalStore((s) => s.filterMood);
+
+  return entries.filter((entry) => {
+    if (filterMood && entry.mood !== filterMood) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      return (
+        entry.title.toLowerCase().includes(q) ||
+        entry.content.toLowerCase().includes(q) ||
+        entry.location.placeName?.toLowerCase().includes(q) ||
+        entry.location.city?.toLowerCase().includes(q) ||
+        entry.location.country?.toLowerCase().includes(q) ||
+        entry.tags.some((t) => t.toLowerCase().includes(q))
+      );
+    }
+    return true;
+  });
+}
+
+export function useSortedEntries(): JournalEntry[] {
+  const entries = useFilteredEntries();
+  return [...entries].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+}
