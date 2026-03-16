@@ -388,7 +388,7 @@ body {
 /* --- Hero --- */
 .scrolly-hero {
   height: 100vh;
-  width: calc(50% + var(--sidebar-width) / 2);
+  width: calc(62% + var(--sidebar-width) * 0.38);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -499,7 +499,7 @@ body {
   position: fixed;
   top: 0;
   right: 0;
-  width: calc(50% - var(--sidebar-width) / 2);
+  width: calc(38% - var(--sidebar-width) * 0.38);
   height: 100vh;
   z-index: 1;
 }
@@ -527,7 +527,7 @@ body {
 .scrolly-entries {
   position: relative;
   z-index: 5;
-  width: calc(50% + var(--sidebar-width) / 2);
+  width: calc(62% + var(--sidebar-width) * 0.38);
   padding: 32px clamp(16px, 3vw, 40px) 100px;
 }
 
@@ -774,33 +774,33 @@ body {
 }
 
 .marker-dot {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: var(--marker-color, var(--accent));
-  border: 2px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 0 10px var(--marker-color, var(--accent)),
+  border: 2.5px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 12px var(--marker-color, var(--accent)),
               0 0 20px rgba(0, 0, 0, 0.5);
   transition: all 0.3s var(--ease);
 }
 
 .marker-selected .marker-dot,
 .marker-active .marker-dot {
-  width: 16px;
-  height: 16px;
-  box-shadow: 0 0 15px var(--marker-color, var(--accent)),
-              0 0 30px var(--marker-color, var(--accent));
+  width: 18px;
+  height: 18px;
+  box-shadow: 0 0 18px var(--marker-color, var(--accent)),
+              0 0 40px var(--marker-color, var(--accent));
 }
 
 .marker-latest .marker-dot {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
 }
 
 .marker-pulse {
   position: absolute;
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: var(--marker-color, var(--accent));
   opacity: 0;
@@ -818,18 +818,34 @@ body {
   left: 50%;
   transform: translateX(-50%);
   margin-top: 4px;
-  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
 }
 
 .marker-date {
   font-size: 10px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-primary);
   background: var(--bg-glass);
-  padding: 1px 6px;
+  padding: 2px 7px;
   border-radius: 4px;
   backdrop-filter: blur(8px);
   border: 1px solid var(--border);
+}
+
+.marker-city {
+  display: block;
+  font-size: 9px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  text-align: center;
+  margin-top: 1px;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ===========================

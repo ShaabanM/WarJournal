@@ -24,11 +24,12 @@ export default function WorldMap() {
       container: mapContainer.current,
       style: isDark
         ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
-        : 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+        : 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
       center: mapCenter,
       zoom: mapZoom,
-      pitch: 0,
-      bearing: 0,
+      pitch: 35,
+      bearing: -10,
+      maxPitch: 60,
     });
 
     map.addControl(new maplibregl.NavigationControl({ showCompass: true }), 'bottom-right');
@@ -64,7 +65,7 @@ export default function WorldMap() {
     const map = mapRef.current;
     const newStyle = isDark
       ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
-      : 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
+      : 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json';
 
     map.setStyle(newStyle);
     // After style loads, the journey line + markers effect will re-run
@@ -101,8 +102,10 @@ export default function WorldMap() {
 
     mapRef.current.flyTo({
       center: [entry.location.lng, entry.location.lat],
-      zoom: Math.max(mapRef.current.getZoom(), 5),
-      duration: 1200,
+      zoom: Math.max(mapRef.current.getZoom(), 6),
+      pitch: 40 + Math.random() * 15,
+      bearing: -15 + Math.random() * 30,
+      duration: 1800,
       essential: true,
     });
   }, [activeEntryId, entries, mapLoaded]);
@@ -140,29 +143,28 @@ export default function WorldMap() {
 
     const lineColor = isDark ? '#d4a574' : '#8b6f47';
 
-    // Glow effect
+    // Wide outer glow
     map.addLayer({
       id: 'journey-line-glow',
       type: 'line',
       source: 'journey',
       paint: {
         'line-color': lineColor,
-        'line-width': 6,
-        'line-opacity': 0.3,
-        'line-blur': 4,
+        'line-width': 10,
+        'line-opacity': 0.15,
+        'line-blur': 8,
       },
     });
 
-    // Main line
+    // Main line — solid with gradient feel
     map.addLayer({
       id: 'journey-line',
       type: 'line',
       source: 'journey',
       paint: {
         'line-color': lineColor,
-        'line-width': 2.5,
-        'line-opacity': 0.8,
-        'line-dasharray': [2, 1],
+        'line-width': 3,
+        'line-opacity': 0.9,
       },
     });
 
@@ -208,6 +210,7 @@ function createMarkerElement(entry: JournalEntry, isLatest: boolean): HTMLElemen
   el.className = `map-marker ${isLatest ? 'marker-latest' : ''}`;
 
   const color = getMoodColor(entry.mood, entry.moodColor);
+  const city = entry.location.city || entry.location.placeName || '';
 
   el.innerHTML = `
     <div class="marker-pin" style="--marker-color: ${color}">
@@ -216,6 +219,7 @@ function createMarkerElement(entry: JournalEntry, isLatest: boolean): HTMLElemen
     </div>
     <div class="marker-label">
       <span class="marker-date">${format(new Date(getEntryDisplayDate(entry)), 'MMM d')}</span>
+      ${city ? `<span class="marker-city">${city}</span>` : ''}
     </div>
   `;
 
