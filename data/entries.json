@@ -27,8 +27,35 @@
       "updatedAt": "2026-03-16T12:52:24.484Z",
       "newsHeadline": "US-Israeli strikes kill Khamenei and Iranian retaliation shakes Gulf - As it happened",
       "manualDate": "2026-02-28T11:00:00.000Z"
+    },
+    {
+      "id": "35bd0b7f-7ca9-417d-a530-bec585206a7d",
+      "timestamp": "2026-03-16T12:55:57.245Z",
+      "location": {
+        "lat": 25.2383301,
+        "lng": 55.252792,
+        "city": "Dubai",
+        "country": "United Arab Emirates",
+        "placeName": "Port de La Mer, Street 117, Jumeirah"
+      },
+      "title": "War or Not I am Moving In",
+      "content": "Test to be filled",
+      "mood": "Annoyed",
+      "photos": [
+        {
+          "id": "8f134423-2004-4a6f-b28d-482ff9d1770c",
+          "dataUrl": "",
+          "timestamp": "2026-03-16T12:55:35.677Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/35bd0b7f-7ca9-417d-a530-bec585206a7d/8f134423-2004-4a6f-b28d-482ff9d1770c.jpg"
+        }
+      ],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-03-16T12:55:57.245Z",
+      "updatedAt": "2026-03-16T12:55:57.245Z",
+      "manualDate": "2026-03-01T11:00:00.000Z"
     }
   ],
-  "exportedAt": "2026-03-16T12:52:24.484Z",
-  "totalEntries": 1
+  "exportedAt": "2026-03-16T12:55:58.927Z",
+  "totalEntries": 2
 }
