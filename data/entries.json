@@ -57,8 +57,35 @@
       "updatedAt": "2026-03-16T13:16:03.327Z",
       "newsHeadline": "Missile debris, panic buying jolt Dubai's aura of calm after Iran attack",
       "manualDate": "2026-03-01T11:00:00.000Z"
+    },
+    {
+      "id": "c3abeed7-3bbf-46ad-99fe-9afc05a9285d",
+      "timestamp": "2026-03-16T17:28:32.603Z",
+      "location": {
+        "lat": 41.90760055781382,
+        "lng": 12.471436497677505,
+        "placeName": "Via Giuseppe Gioachino Belli, Prati, Municipio Roma I",
+        "city": "Rome",
+        "country": "Italy"
+      },
+      "title": "Romaaaa",
+      "content": "Mama miaa",
+      "moodColor": "#4caf7d",
+      "photos": [
+        {
+          "id": "797ffa5e-f786-4053-b2cb-470207d0fac2",
+          "dataUrl": "",
+          "timestamp": "2026-03-16T17:28:06.978Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/c3abeed7-3bbf-46ad-99fe-9afc05a9285d/797ffa5e-f786-4053-b2cb-470207d0fac2.jpg"
+        }
+      ],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-03-16T17:28:32.603Z",
+      "updatedAt": "2026-03-16T17:28:32.603Z",
+      "newsHeadline": "Test"
     }
   ],
-  "exportedAt": "2026-03-16T13:16:13.698Z",
-  "totalEntries": 2
+  "exportedAt": "2026-03-16T17:28:34.135Z",
+  "totalEntries": 3
 }
