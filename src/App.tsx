@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useJournalStore } from './store/journalStore';
 import ReaderView from './components/ReaderView';
 import AuthorView from './components/AuthorView';
+import ToastContainer from './components/Toast';
 import './App.css';
 
 export default function App() {
@@ -27,6 +28,7 @@ export default function App() {
   return (
     <div className="app">
       {viewMode === 'reader' ? <ReaderView /> : <AuthorView />}
+      <ToastContainer />
     </div>
   );
 }

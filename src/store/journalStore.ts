@@ -3,6 +3,12 @@ import type { JournalEntry, AppSettings } from '../types';
 import * as db from '../utils/db';
 import { publishEntries, fetchPublishedEntries, deriveGitHubInfo } from '../utils/github';
 
+interface Toast {
+  message: string;
+  type: 'success' | 'error' | 'info';
+  id: number;
+}
+
 interface JournalState {
   entries: JournalEntry[];
   selectedEntry: JournalEntry | null;
@@ -16,6 +22,7 @@ interface JournalState {
   filterMood: string | null;
   showEntryDetail: boolean;
   activeEntryId: string | null;
+  toasts: Toast[];
 
   // Actions
   loadEntries: () => Promise<void>;
@@ -34,6 +41,8 @@ interface JournalState {
   setActiveEntryId: (id: string | null) => void;
   saveSettings: (settings: AppSettings) => Promise<void>;
   setTheme: (theme: 'dark' | 'light') => void;
+  showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
+  dismissToast: (id: number) => void;
   publish: () => Promise<boolean>;
   flyToEntry: (entry: JournalEntry) => void;
 }
@@ -54,6 +63,7 @@ export const useJournalStore = create<JournalState>((set, get) => ({
   filterMood: null,
   showEntryDetail: false,
   activeEntryId: null,
+  toasts: [],
 
   loadEntries: async () => {
     set({ isLoading: true });
@@ -65,8 +75,8 @@ export const useJournalStore = create<JournalState>((set, get) => ({
     set({ isLoading: true });
     const { settings } = get();
 
-    // Always load local entries first — author's entries on this device
-    const localEntries = await db.getAllEntries();
+    // Load local published entries only (don't leak drafts into reader view)
+    const localEntries = (await db.getAllEntries()).filter((e) => e.isPublished);
 
     // Determine GitHub owner/repo: use settings if available, otherwise derive from URL
     let owner = settings.githubOwner;
@@ -160,6 +170,19 @@ export const useJournalStore = create<JournalState>((set, get) => ({
     const updated = { ...settings, theme };
     db.saveSettings(updated);
     set({ settings: updated });
+  },
+
+  showToast: (message, type = 'info') => {
+    const id = Date.now();
+    set((state) => ({ toasts: [...state.toasts, { message, type, id }] }));
+    // Auto-dismiss after 4 seconds
+    setTimeout(() => {
+      set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
+    }, 4000);
+  },
+
+  dismissToast: (id) => {
+    set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
   },
 
   publish: async () => {

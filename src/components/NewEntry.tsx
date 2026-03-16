@@ -17,7 +17,7 @@ interface NewEntryProps {
 }
 
 export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
-  const { addEntry, updateEntry, publish: publishToGithub, settings } = useJournalStore();
+  const { addEntry, updateEntry, publish: publishToGithub, settings, showToast } = useJournalStore();
   const { isLocating, error: geoError, getLocation } = useGeolocation();
   const {
     text: voiceText, isListening, isSupported: speechSupported,
@@ -155,8 +155,14 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
     if (shouldPublish && settings.githubToken && settings.githubOwner && settings.githubRepo) {
       // Fire and forget — don't block the UI, push happens in background
       publishToGithub().then((success) => {
-        if (!success) console.warn('Auto-publish to GitHub failed');
+        if (success) {
+          showToast('Entry published & synced to GitHub ✓', 'success');
+        } else {
+          showToast('Entry saved locally but GitHub sync failed — will retry next publish', 'error');
+        }
       });
+    } else if (shouldPublish) {
+      showToast('Entry saved locally (configure GitHub in settings to sync)', 'info');
     }
 
     setIsSaving(false);

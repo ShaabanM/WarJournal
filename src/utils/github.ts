@@ -2,6 +2,9 @@ import type { JournalEntry } from '../types';
 
 const GITHUB_API = 'https://api.github.com';
 
+// Mutex to prevent concurrent publishes (which cause 409 SHA conflicts)
+let publishInProgress: Promise<boolean> | null = null;
+
 interface GitHubConfig {
   token: string;
   owner: string;
@@ -33,13 +36,28 @@ async function getFileSha(config: GitHubConfig, path: string): Promise<string | 
   return null;
 }
 
-export async function publishEntries(
+/**
+ * Strip large photo dataUrls from entries before publishing to GitHub.
+ * Keeps photo metadata (id, caption, timestamp) but removes the actual base64 image data
+ * to prevent the entries.json file from growing unbounded.
+ */
+function stripPhotosForPublish(entries: JournalEntry[]): JournalEntry[] {
+  return entries.map((entry) => ({
+    ...entry,
+    photos: entry.photos.map((p) => ({
+      ...p,
+      dataUrl: '', // Remove base64 data — photos live only in local IndexedDB
+    })),
+  }));
+}
+
+async function doPublish(
   config: GitHubConfig,
   entries: JournalEntry[]
 ): Promise<boolean> {
   try {
     const data = {
-      entries,
+      entries: stripPhotosForPublish(entries),
       exportedAt: new Date().toISOString(),
       totalEntries: entries.length,
     };
@@ -71,6 +89,30 @@ export async function publishEntries(
 }
 
 /**
+ * Publish entries to GitHub with a mutex to prevent concurrent writes.
+ * If a publish is already in progress, waits for it to complete then retries
+ * with fresh data to avoid 409 SHA conflicts.
+ */
+export async function publishEntries(
+  config: GitHubConfig,
+  entries: JournalEntry[]
+): Promise<boolean> {
+  // If a publish is already in progress, wait for it then retry with latest data
+  if (publishInProgress) {
+    await publishInProgress;
+  }
+
+  const promise = doPublish(config, entries);
+  publishInProgress = promise;
+
+  try {
+    return await promise;
+  } finally {
+    publishInProgress = null;
+  }
+}
+
+/**
  * Derive GitHub owner/repo from the current deployment URL.
  * Works for GitHub Pages URLs like https://shaabanm.github.io/WarJournal/
  */
@@ -96,16 +138,20 @@ export async function fetchPublishedEntries(
   owner: string,
   repo: string
 ): Promise<JournalEntry[]> {
+  // Cache-bust to avoid stale CDN/browser caches
+  const cacheBust = `_t=${Date.now()}`;
+
   try {
     // Try raw GitHub content first (always up-to-date, no build/cache lag)
     let res = await fetch(
-      `https://raw.githubusercontent.com/${owner}/${repo}/main/data/entries.json`
+      `https://raw.githubusercontent.com/${owner}/${repo}/main/data/entries.json?${cacheBust}`,
+      { cache: 'no-store' }
     );
 
     if (!res.ok) {
       // Fallback to GitHub Pages static file
-      const pagesUrl = `https://${owner}.github.io/${repo}/data/entries.json`;
-      res = await fetch(pagesUrl);
+      const pagesUrl = `https://${owner}.github.io/${repo}/data/entries.json?${cacheBust}`;
+      res = await fetch(pagesUrl, { cache: 'no-store' });
     }
 
     if (res.ok) {
