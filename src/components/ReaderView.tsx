@@ -9,7 +9,7 @@ import { getTotalDistance } from '../utils/geo';
 
 export default function ReaderView() {
   const {
-    entries, isLoading, activeEntryId,
+    isLoading, activeEntryId,
     loadEntries, setViewMode, loadSettings,
     setActiveEntryId, searchQuery, setSearchQuery,
     settings, setTheme,
@@ -61,6 +61,7 @@ export default function ReaderView() {
     ? getTotalDistance(sorted.map((e) => e.location))
     : 0;
   const countries = new Set(sorted.map((e) => e.location.country).filter(Boolean));
+  const cities = new Set(sorted.map((e) => e.location.city || e.location.placeName).filter(Boolean));
   const latestEntry = sorted[sorted.length - 1];
   const dateRange = sorted.length > 0
     ? `${new Date(getEntryDisplayDate(sorted[0])).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} — ${new Date(getEntryDisplayDate(sorted[sorted.length - 1])).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
@@ -112,8 +113,8 @@ export default function ReaderView() {
 
         <div className="scrolly-sidebar__stats">
           <div className="sidebar-stat">
-            <span className="sidebar-stat__value">{entries.length}</span>
-            <span className="sidebar-stat__label">entries</span>
+            <span className="sidebar-stat__value">{cities.size}</span>
+            <span className="sidebar-stat__label">cities</span>
           </div>
           <div className="sidebar-stat">
             <span className="sidebar-stat__value">{Math.round(totalDistance).toLocaleString()}</span>
@@ -139,7 +140,7 @@ export default function ReaderView() {
               <div className="scrolly-hero__meta">
                 <span>{dateRange}</span>
                 <span className="scrolly-hero__dot"></span>
-                <span>{entries.length} entries</span>
+                <span>{cities.size} cities</span>
                 <span className="scrolly-hero__dot"></span>
                 <span>{countries.size} countries</span>
               </div>
