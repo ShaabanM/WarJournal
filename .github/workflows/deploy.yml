@@ -32,7 +32,7 @@ jobs:
       - run: |
           if [ -d "data" ]; then
             mkdir -p dist/data
-            cp -f data/* dist/data/
+            cp -rf data/* dist/data/
           fi
 
       - uses: actions/upload-pages-artifact@v3
