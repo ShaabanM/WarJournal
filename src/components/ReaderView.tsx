@@ -61,7 +61,23 @@ export default function ReaderView() {
     ? getTotalDistance(sorted.map((e) => e.location))
     : 0;
   const countries = new Set(sorted.map((e) => e.location.country).filter(Boolean));
-  const cities = new Set(sorted.map((e) => e.location.city || e.location.placeName).filter(Boolean));
+  // Count distinct cities by clustering nearby locations (within ~25 km)
+  const cities = (() => {
+    const clusters: { lat: number; lng: number; name: string }[] = [];
+    for (const e of sorted) {
+      const name = e.location.city || e.location.placeName || '';
+      if (!name) continue;
+      const nearby = clusters.find((c) => {
+        const dlat = c.lat - e.location.lat;
+        const dlng = c.lng - e.location.lng;
+        return Math.sqrt(dlat * dlat + dlng * dlng) < 0.25; // ~25 km
+      });
+      if (!nearby) {
+        clusters.push({ lat: e.location.lat, lng: e.location.lng, name });
+      }
+    }
+    return clusters;
+  })();
   const latestEntry = sorted[sorted.length - 1];
   const dateRange = sorted.length > 0
     ? `${new Date(getEntryDisplayDate(sorted[0])).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} — ${new Date(getEntryDisplayDate(sorted[sorted.length - 1])).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
@@ -113,7 +129,7 @@ export default function ReaderView() {
 
         <div className="scrolly-sidebar__stats">
           <div className="sidebar-stat">
-            <span className="sidebar-stat__value">{cities.size}</span>
+            <span className="sidebar-stat__value">{cities.length}</span>
             <span className="sidebar-stat__label">cities</span>
           </div>
           <div className="sidebar-stat">
@@ -140,7 +156,7 @@ export default function ReaderView() {
               <div className="scrolly-hero__meta">
                 <span>{dateRange}</span>
                 <span className="scrolly-hero__dot"></span>
-                <span>{cities.size} cities</span>
+                <span>{cities.length} cities</span>
                 <span className="scrolly-hero__dot"></span>
                 <span>{countries.size} countries</span>
               </div>
