@@ -4,21 +4,27 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { useJournalStore, useSortedEntries } from '../store/journalStore';
 import type { JournalEntry } from '../types';
 import { format } from 'date-fns';
-import { DEFAULT_MOOD_COLOR, getMoodMeta } from '../constants/moods';
+
+const MOOD_COLORS: Record<string, string> = {
+  hopeful: '#4ade80',
+  anxious: '#f97316',
+  grateful: '#a78bfa',
+  reflective: '#60a5fa',
+  determined: '#f59e0b',
+  somber: '#6b7280',
+  joyful: '#fbbf24',
+  exhausted: '#ef4444',
+};
+
+const DEFAULT_COLOR = '#f0a500';
 
 export default function WorldMap() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
-  const activeStyleRef = useRef<string | null>(null);
   const entries = useSortedEntries();
-  const { mapCenter, mapZoom, selectEntry, selectedEntry, settings, previewEntry } = useJournalStore();
-  const [mapReadyVersion, setMapReadyVersion] = useState(0);
-  const [initialViewport] = useState<{ center: [number, number]; zoom: number }>(() => ({
-    center: mapCenter,
-    zoom: mapZoom,
-  }));
-  const mapStyle = settings.mapStyle;
+  const { mapCenter, mapZoom, selectEntry, selectedEntry } = useJournalStore();
+  const [mapLoaded, setMapLoaded] = useState(false);
 
   // Initialize map
   useEffect(() => {
@@ -26,19 +32,17 @@ export default function WorldMap() {
 
     const map = new maplibregl.Map({
       container: mapContainer.current,
-      style: mapStyle,
-      center: initialViewport.center,
-      zoom: initialViewport.zoom,
+      style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+      center: mapCenter,
+      zoom: mapZoom,
       pitch: 0,
       bearing: 0,
     });
-    activeStyleRef.current = mapStyle;
 
     map.addControl(new maplibregl.NavigationControl({ showCompass: true }), 'bottom-right');
-    map.on('click', () => selectEntry(null));
 
     map.on('load', () => {
-      setMapReadyVersion((version) => version + 1);
+      setMapLoaded(true);
     });
 
     mapRef.current = map;
@@ -47,22 +51,11 @@ export default function WorldMap() {
       map.remove();
       mapRef.current = null;
     };
-  }, [initialViewport.center, initialViewport.zoom, mapStyle, selectEntry]);
-
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !mapReadyVersion || activeStyleRef.current === mapStyle) return;
-
-    activeStyleRef.current = mapStyle;
-    map.setStyle(mapStyle);
-    map.once('styledata', () => {
-      setMapReadyVersion((version) => version + 1);
-    });
-  }, [mapReadyVersion, mapStyle]);
+  }, []);
 
   // Fly to center when it changes
   useEffect(() => {
-    if (mapRef.current && mapReadyVersion) {
+    if (mapRef.current && mapLoaded) {
       mapRef.current.flyTo({
         center: mapCenter,
         zoom: mapZoom,
@@ -70,11 +63,11 @@ export default function WorldMap() {
         essential: true,
       });
     }
-  }, [mapCenter, mapZoom, mapReadyVersion]);
+  }, [mapCenter, mapZoom, mapLoaded]);
 
   // Draw journey line and markers
   useEffect(() => {
-    if (!mapRef.current || !mapReadyVersion) return;
+    if (!mapRef.current || !mapLoaded) return;
     const map = mapRef.current;
 
     // Clear old markers
@@ -144,22 +137,7 @@ export default function WorldMap() {
 
       markersRef.current.push(marker);
     });
-
-    if (previewEntry && !entries.some((entry) => entry.id === previewEntry.id)) {
-      const el = createMarkerElement(previewEntry, false, true);
-
-      el.addEventListener('click', (e) => {
-        e.stopPropagation();
-        selectEntry(previewEntry);
-      });
-
-      const marker = new maplibregl.Marker({ element: el })
-        .setLngLat([previewEntry.location.lng, previewEntry.location.lat])
-        .addTo(map);
-
-      markersRef.current.push(marker);
-    }
-  }, [entries, mapReadyVersion, previewEntry, selectEntry]);
+  }, [entries, mapLoaded, selectEntry]);
 
   // Highlight selected marker
   useEffect(() => {
@@ -178,11 +156,11 @@ export default function WorldMap() {
   );
 }
 
-function createMarkerElement(entry: JournalEntry, isLatest: boolean, isPreview = false): HTMLElement {
+function createMarkerElement(entry: JournalEntry, isLatest: boolean): HTMLElement {
   const el = document.createElement('div');
-  el.className = `map-marker ${isLatest ? 'marker-latest' : ''} ${isPreview ? 'marker-preview' : ''}`;
+  el.className = `map-marker ${isLatest ? 'marker-latest' : ''}`;
 
-  const color = getMoodMeta(entry.mood)?.color ?? DEFAULT_MOOD_COLOR;
+  const color = entry.mood ? MOOD_COLORS[entry.mood] || DEFAULT_COLOR : DEFAULT_COLOR;
 
   el.innerHTML = `
     <div class="marker-pin" style="--marker-color: ${color}">
@@ -190,7 +168,7 @@ function createMarkerElement(entry: JournalEntry, isLatest: boolean, isPreview =
       ${isLatest ? '<div class="marker-pulse"></div>' : ''}
     </div>
     <div class="marker-label">
-      <span class="marker-date">${isPreview ? 'Draft preview' : format(new Date(entry.timestamp), 'MMM d')}</span>
+      <span class="marker-date">${format(new Date(entry.timestamp), 'MMM d')}</span>
     </div>
   `;
 

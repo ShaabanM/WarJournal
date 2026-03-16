@@ -11,46 +11,21 @@ interface UseSpeechToTextReturn {
   setText: (text: string) => void;
 }
 
+// Extend window for webkitSpeechRecognition
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
   resultIndex: number;
-}
-
-interface SpeechRecognitionErrorEvent extends Event {
-  error: string;
-}
-
-interface SpeechRecognitionInstance extends EventTarget {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  onresult: ((event: SpeechRecognitionEvent) => void) | null;
-  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
-  onend: (() => void) | null;
-  start: () => void;
-  stop: () => void;
-}
-
-interface SpeechRecognitionConstructor {
-  new (): SpeechRecognitionInstance;
 }
 
 export function useSpeechToText(): UseSpeechToTextReturn {
   const [text, setText] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
+  const recognitionRef = useRef<any>(null);
 
   const SpeechRecognition =
     typeof window !== 'undefined'
-      ? ((window as Window & {
-          SpeechRecognition?: SpeechRecognitionConstructor;
-          webkitSpeechRecognition?: SpeechRecognitionConstructor;
-        }).SpeechRecognition ||
-          (window as Window & {
-            webkitSpeechRecognition?: SpeechRecognitionConstructor;
-          }).webkitSpeechRecognition ||
-          null)
+      ? (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
       : null;
 
   const isSupported = !!SpeechRecognition;
@@ -82,7 +57,7 @@ export function useSpeechToText(): UseSpeechToTextReturn {
       setText(finalTranscript + interim);
     };
 
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+    recognition.onerror = (event: any) => {
       if (event.error !== 'aborted') {
         setError(`Speech recognition error: ${event.error}`);
       }

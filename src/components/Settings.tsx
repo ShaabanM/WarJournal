@@ -1,22 +1,6 @@
 import { useState } from 'react';
-import { X, Save, Github, User, Shield, Globe, Compass } from 'lucide-react';
+import { X, Save, Github, User } from 'lucide-react';
 import { useJournalStore } from '../store/journalStore';
-import { format } from 'date-fns';
-
-const MAP_STYLE_PRESETS = [
-  {
-    label: 'Dark Matter',
-    value: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
-  },
-  {
-    label: 'Voyager',
-    value: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
-  },
-  {
-    label: 'Positron',
-    value: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
-  },
-];
 
 interface SettingsPanelProps {
   onClose: () => void;
@@ -25,30 +9,20 @@ interface SettingsPanelProps {
 export default function SettingsPanel({ onClose }: SettingsPanelProps) {
   const { settings, saveSettings } = useJournalStore();
   const [authorName, setAuthorName] = useState(settings.authorName);
-  const [journalTitle, setJournalTitle] = useState(settings.journalTitle || 'War Journal');
-  const [journalSubtitle, setJournalSubtitle] = useState(
-    settings.journalSubtitle || 'Field notes from a world unspooling in real time.'
-  );
   const [githubToken, setGithubToken] = useState(settings.githubToken || '');
   const [githubOwner, setGithubOwner] = useState(settings.githubOwner || '');
   const [githubRepo, setGithubRepo] = useState(settings.githubRepo || '');
   const [authorPin, setAuthorPin] = useState(settings.authorPin || '');
-  const [mapStyle, setMapStyle] = useState(settings.mapStyle);
   const [saved, setSaved] = useState(false);
-  const publicUrl =
-    githubOwner && githubRepo ? `https://${githubOwner}.github.io/${githubRepo}/` : null;
 
   const handleSave = async () => {
     await saveSettings({
       ...settings,
       authorName,
-      journalTitle,
-      journalSubtitle,
       githubToken: githubToken || undefined,
       githubOwner: githubOwner || undefined,
       githubRepo: githubRepo || undefined,
       authorPin: authorPin || undefined,
-      mapStyle,
     });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
@@ -66,25 +40,7 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
 
         <div className="settings-body">
           <div className="settings-section">
-            <h3><User size={16} /> Journal identity</h3>
-            <label className="setting-field">
-              <span>Journal Title</span>
-              <input
-                type="text"
-                value={journalTitle}
-                onChange={(e) => setJournalTitle(e.target.value)}
-                placeholder="War Journal"
-              />
-            </label>
-            <label className="setting-field">
-              <span>Journal Subtitle</span>
-              <textarea
-                value={journalSubtitle}
-                onChange={(e) => setJournalSubtitle(e.target.value)}
-                placeholder="Tell readers what this journal is documenting"
-                rows={3}
-              />
-            </label>
+            <h3><User size={16} /> Profile</h3>
             <label className="setting-field">
               <span>Author Name</span>
               <input
@@ -94,10 +50,6 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
                 placeholder="Your name"
               />
             </label>
-          </div>
-
-          <div className="settings-section">
-            <h3><Shield size={16} /> Privacy</h3>
             <label className="setting-field">
               <span>Author PIN (optional)</span>
               <input
@@ -107,23 +59,6 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
                 placeholder="Simple PIN to protect author view"
                 maxLength={6}
               />
-            </label>
-            <p className="settings-description">
-              When a PIN is set, author mode is locked until the correct code is entered in this browser session.
-            </p>
-          </div>
-
-          <div className="settings-section">
-            <h3><Compass size={16} /> Map style</h3>
-            <label className="setting-field">
-              <span>Map Theme</span>
-              <select value={mapStyle} onChange={(e) => setMapStyle(e.target.value)}>
-                {MAP_STYLE_PRESETS.map((preset) => (
-                  <option key={preset.value} value={preset.value}>
-                    {preset.label}
-                  </option>
-                ))}
-              </select>
             </label>
           </div>
 
@@ -163,22 +98,6 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
                 Needs 'repo' scope. Create at GitHub → Settings → Developer settings → Tokens
               </span>
             </label>
-            {publicUrl ? (
-              <div className="settings-callout">
-                <div className="settings-callout-header">
-                  <Globe size={15} />
-                  <span>Public journal URL</span>
-                </div>
-                <a href={publicUrl} target="_blank" rel="noreferrer">
-                  {publicUrl}
-                </a>
-                {settings.lastPublishedAt ? (
-                  <p>Last successful publish: {format(new Date(settings.lastPublishedAt), 'PPP p')}</p>
-                ) : (
-                  <p>No successful publish recorded yet.</p>
-                )}
-              </div>
-            ) : null}
           </div>
         </div>
 
