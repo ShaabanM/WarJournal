@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { JournalEntry, AppSettings } from '../types';
 import * as db from '../utils/db';
-import { publishEntries, fetchPublishedEntries } from '../utils/github';
+import { publishEntries, fetchPublishedEntries, deriveGitHubInfo } from '../utils/github';
 
 interface JournalState {
   entries: JournalEntry[];
@@ -67,14 +67,26 @@ export const useJournalStore = create<JournalState>((set, get) => ({
     // Always load local entries first — author's entries on this device
     const localEntries = await db.getAllEntries();
 
+    // Determine GitHub owner/repo: use settings if available, otherwise derive from URL
+    let owner = settings.githubOwner;
+    let repo = settings.githubRepo;
+
+    if (!owner || !repo) {
+      const derived = deriveGitHubInfo();
+      if (derived) {
+        owner = derived.owner;
+        repo = derived.repo;
+      }
+    }
+
     // Then try to load remote/published entries
     let remoteEntries: JournalEntry[] = [];
 
-    if (settings.githubOwner && settings.githubRepo) {
-      remoteEntries = await fetchPublishedEntries(settings.githubOwner, settings.githubRepo);
+    if (owner && repo) {
+      remoteEntries = await fetchPublishedEntries(owner, repo);
     }
 
-    // If no remote entries found, try the bundled data file
+    // Last resort: try the bundled static data file
     if (remoteEntries.length === 0) {
       try {
         const res = await fetch(import.meta.env.BASE_URL + 'data/entries.json');
@@ -139,12 +151,15 @@ export const useJournalStore = create<JournalState>((set, get) => ({
   },
 
   publish: async () => {
-    const { settings, entries } = get();
+    const { settings } = get();
     if (!settings.githubToken || !settings.githubOwner || !settings.githubRepo) {
       return false;
     }
     set({ isPublishing: true });
-    const published = entries.filter((e) => e.isPublished);
+    // Always read fresh from IndexedDB to avoid race conditions
+    // (handleSave calls addEntry then publish fire-and-forget)
+    const allEntries = await db.getAllEntries();
+    const published = allEntries.filter((e) => e.isPublished);
     const success = await publishEntries(
       {
         token: settings.githubToken,
