@@ -2,23 +2,8 @@ import { useCallback } from 'react';
 import { MapPin, Tag, Newspaper } from 'lucide-react';
 import { format } from 'date-fns';
 import { getEntryDisplayDate } from '../store/journalStore';
+import { getMoodColor } from '../utils/sentiment';
 import type { JournalEntry } from '../types';
-
-const MOOD_COLORS: Record<string, string> = {
-  hopeful: '#4ade80',
-  anxious: '#f97316',
-  grateful: '#a78bfa',
-  reflective: '#60a5fa',
-  determined: '#f59e0b',
-  somber: '#6b7280',
-  joyful: '#fbbf24',
-  exhausted: '#ef4444',
-};
-
-const MOOD_EMOJI: Record<string, string> = {
-  hopeful: '\u{1F305}', anxious: '\u{1F630}', grateful: '\u{1F64F}', reflective: '\u{1FA9E}',
-  determined: '\u{1F4AA}', somber: '\u{1F327}\u{FE0F}', joyful: '\u2728', exhausted: '\u{1F62E}\u200D\u{1F4A8}',
-};
 
 interface ScrollyEntryProps {
   entry: JournalEntry;
@@ -36,7 +21,7 @@ export default function ScrollyEntry({ entry, isActive, index, registerRef }: Sc
   );
 
   const displayDate = getEntryDisplayDate(entry);
-  const moodColor = entry.mood ? MOOD_COLORS[entry.mood] : undefined;
+  const moodColor = getMoodColor(entry.mood);
   const dayNumber = index + 1;
 
   return (
@@ -68,7 +53,6 @@ export default function ScrollyEntry({ entry, isActive, index, registerRef }: Sc
           className="scrolly-entry__mood"
           style={{ '--mood-color': moodColor } as React.CSSProperties}
         >
-          <span>{MOOD_EMOJI[entry.mood] || ''}</span>
           <span>{entry.mood}</span>
         </div>
       )}

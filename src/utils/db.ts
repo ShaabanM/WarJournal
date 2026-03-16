@@ -44,6 +44,7 @@ export async function getSettings(): Promise<AppSettings> {
     id: 1,
     authorName: 'Traveler',
     mapStyle: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+    theme: 'dark' as const,
   };
 }
 

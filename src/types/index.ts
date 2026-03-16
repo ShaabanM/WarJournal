@@ -12,7 +12,7 @@ export interface JournalEntry {
   location: GeoLocation;
   title: string;
   content: string;
-  mood?: 'hopeful' | 'anxious' | 'grateful' | 'reflective' | 'determined' | 'somber' | 'joyful' | 'exhausted';
+  mood?: string; // Free text. Old values ('hopeful', etc.) still valid.
   photos: EntryPhoto[];
   tags: string[];
   isPublished: boolean;
@@ -36,6 +36,7 @@ export interface AppSettings {
   authorName: string;
   authorPin?: string; // simple pin for author access
   mapStyle: string;
+  theme?: 'dark' | 'light';
 }
 
 export type ViewMode = 'reader' | 'author';

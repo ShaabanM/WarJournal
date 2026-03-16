@@ -33,6 +33,7 @@ interface JournalState {
   setShowEntryDetail: (show: boolean) => void;
   setActiveEntryId: (id: string | null) => void;
   saveSettings: (settings: AppSettings) => Promise<void>;
+  setTheme: (theme: 'dark' | 'light') => void;
   publish: () => Promise<boolean>;
   flyToEntry: (entry: JournalEntry) => void;
 }
@@ -112,6 +113,9 @@ export const useJournalStore = create<JournalState>((set, get) => ({
 
   loadSettings: async () => {
     const settings = await db.getSettings();
+    // Apply theme to DOM
+    const theme = settings.theme || 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
     set({ settings });
   },
 
@@ -148,6 +152,14 @@ export const useJournalStore = create<JournalState>((set, get) => ({
   saveSettings: async (settings) => {
     await db.saveSettings(settings);
     set({ settings });
+  },
+
+  setTheme: (theme) => {
+    document.documentElement.setAttribute('data-theme', theme);
+    const { settings } = get();
+    const updated = { ...settings, theme };
+    db.saveSettings(updated);
+    set({ settings: updated });
   },
 
   publish: async () => {
@@ -198,7 +210,8 @@ export function useFilteredEntries(): JournalEntry[] {
         entry.location.placeName?.toLowerCase().includes(q) ||
         entry.location.city?.toLowerCase().includes(q) ||
         entry.location.country?.toLowerCase().includes(q) ||
-        entry.tags.some((t) => t.toLowerCase().includes(q))
+        entry.tags.some((t) => t.toLowerCase().includes(q)) ||
+        entry.mood?.toLowerCase().includes(q)
       );
     }
     return true;

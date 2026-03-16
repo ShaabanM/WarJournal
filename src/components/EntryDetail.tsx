@@ -1,24 +1,9 @@
 import { useState } from 'react';
 import { X, MapPin, Calendar, Clock, ChevronLeft, ChevronRight, Tag } from 'lucide-react';
 import { useJournalStore, useSortedEntries } from '../store/journalStore';
+import { getMoodColor } from '../utils/sentiment';
 import { format } from 'date-fns';
 import { formatCoordinates } from '../utils/geo';
-
-const MOOD_COLORS: Record<string, string> = {
-  hopeful: '#4ade80',
-  anxious: '#f97316',
-  grateful: '#a78bfa',
-  reflective: '#60a5fa',
-  determined: '#f59e0b',
-  somber: '#6b7280',
-  joyful: '#fbbf24',
-  exhausted: '#ef4444',
-};
-
-const MOOD_EMOJI: Record<string, string> = {
-  hopeful: '🌅', anxious: '😰', grateful: '🙏', reflective: '🪞',
-  determined: '💪', somber: '🌧️', joyful: '✨', exhausted: '😮‍💨',
-};
 
 export default function EntryDetail() {
   const { selectedEntry, setShowEntryDetail, flyToEntry } = useJournalStore();
@@ -38,7 +23,7 @@ export default function EntryDetail() {
     }
   };
 
-  const moodColor = selectedEntry.mood ? MOOD_COLORS[selectedEntry.mood] : undefined;
+  const moodColor = getMoodColor(selectedEntry.mood);
 
   return (
     <div className="entry-detail">
@@ -82,7 +67,6 @@ export default function EntryDetail() {
         {/* Mood badge */}
         {selectedEntry.mood && (
           <div className="entry-detail-mood" style={{ '--mood-color': moodColor } as React.CSSProperties}>
-            <span>{MOOD_EMOJI[selectedEntry.mood]}</span>
             <span>{selectedEntry.mood}</span>
           </div>
         )}

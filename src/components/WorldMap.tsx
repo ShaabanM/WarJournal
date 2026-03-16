@@ -2,21 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useJournalStore, useSortedEntries, getEntryDisplayDate } from '../store/journalStore';
+import { getMoodColor } from '../utils/sentiment';
 import type { JournalEntry } from '../types';
 import { format } from 'date-fns';
-
-const MOOD_COLORS: Record<string, string> = {
-  hopeful: '#4ade80',
-  anxious: '#f97316',
-  grateful: '#a78bfa',
-  reflective: '#60a5fa',
-  determined: '#f59e0b',
-  somber: '#6b7280',
-  joyful: '#fbbf24',
-  exhausted: '#ef4444',
-};
-
-const DEFAULT_COLOR = '#f0a500';
 
 export default function WorldMap() {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -24,8 +12,9 @@ export default function WorldMap() {
   const markersRef = useRef<maplibregl.Marker[]>([]);
   const lastFlyRef = useRef<string>('');
   const entries = useSortedEntries();
-  const { mapCenter, mapZoom, selectEntry, selectedEntry, activeEntryId } = useJournalStore();
+  const { mapCenter, mapZoom, selectEntry, selectedEntry, activeEntryId, settings } = useJournalStore();
   const [mapLoaded, setMapLoaded] = useState(false);
+  const isDark = settings.theme !== 'light';
 
   // Initialize map
   useEffect(() => {
@@ -33,7 +22,9 @@ export default function WorldMap() {
 
     const map = new maplibregl.Map({
       container: mapContainer.current,
-      style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+      style: isDark
+        ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
+        : 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
       center: mapCenter,
       zoom: mapZoom,
       pitch: 0,
@@ -66,6 +57,24 @@ export default function WorldMap() {
 
     return () => ro.disconnect();
   }, [mapLoaded]);
+
+  // Switch map tiles when theme changes
+  useEffect(() => {
+    if (!mapRef.current || !mapLoaded) return;
+    const map = mapRef.current;
+    const newStyle = isDark
+      ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
+      : 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
+
+    map.setStyle(newStyle);
+    // After style loads, the journey line + markers effect will re-run
+    // because setMapLoaded toggles
+    map.once('styledata', () => {
+      // Force re-render of layers by briefly toggling mapLoaded
+      setMapLoaded(false);
+      requestAnimationFrame(() => setMapLoaded(true));
+    });
+  }, [isDark]);
 
   // Fly to center when it changes (user-initiated, e.g. flyToEntry in author view)
   useEffect(() => {
@@ -129,13 +138,15 @@ export default function WorldMap() {
       },
     });
 
+    const lineColor = isDark ? '#d4a574' : '#8b6f47';
+
     // Glow effect
     map.addLayer({
       id: 'journey-line-glow',
       type: 'line',
       source: 'journey',
       paint: {
-        'line-color': '#f0a500',
+        'line-color': lineColor,
         'line-width': 6,
         'line-opacity': 0.3,
         'line-blur': 4,
@@ -148,7 +159,7 @@ export default function WorldMap() {
       type: 'line',
       source: 'journey',
       paint: {
-        'line-color': '#f0a500',
+        'line-color': lineColor,
         'line-width': 2.5,
         'line-opacity': 0.8,
         'line-dasharray': [2, 1],
@@ -196,7 +207,7 @@ function createMarkerElement(entry: JournalEntry, isLatest: boolean): HTMLElemen
   const el = document.createElement('div');
   el.className = `map-marker ${isLatest ? 'marker-latest' : ''}`;
 
-  const color = entry.mood ? MOOD_COLORS[entry.mood] || DEFAULT_COLOR : DEFAULT_COLOR;
+  const color = getMoodColor(entry.mood);
 
   el.innerHTML = `
     <div class="marker-pin" style="--marker-color: ${color}">

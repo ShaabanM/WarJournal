@@ -1,25 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   MapPin, Mic, MicOff, Camera, X, Save, Send, Loader2,
-  Navigation, ChevronDown, CalendarDays, Newspaper, Globe
+  Navigation, CalendarDays, Newspaper, Search
 } from 'lucide-react';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useSpeechToText } from '../hooks/useSpeechToText';
 import { useJournalStore } from '../store/journalStore';
 import { compressImage, createPhoto } from '../utils/photos';
-import { formatCoordinates } from '../utils/geo';
+import { formatCoordinates, geocodePlace, type GeocodingResult } from '../utils/geo';
+import { getMoodColor } from '../utils/sentiment';
 import type { JournalEntry, EntryPhoto, GeoLocation } from '../types';
-
-const MOODS = [
-  { value: 'hopeful', emoji: '🌅', label: 'Hopeful' },
-  { value: 'anxious', emoji: '😰', label: 'Anxious' },
-  { value: 'grateful', emoji: '🙏', label: 'Grateful' },
-  { value: 'reflective', emoji: '🪞', label: 'Reflective' },
-  { value: 'determined', emoji: '💪', label: 'Determined' },
-  { value: 'somber', emoji: '🌧️', label: 'Somber' },
-  { value: 'joyful', emoji: '✨', label: 'Joyful' },
-  { value: 'exhausted', emoji: '😮‍💨', label: 'Exhausted' },
-] as const;
 
 interface NewEntryProps {
   onClose: () => void;
@@ -41,18 +31,17 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
   const [tags, setTags] = useState<string>(editEntry?.tags?.join(', ') || '');
   const [entryLocation, setEntryLocation] = useState<GeoLocation | null>(editEntry?.location || null);
   const [isSaving, setIsSaving] = useState(false);
-  const [showMoodPicker, setShowMoodPicker] = useState(false);
   const [newsHeadline, setNewsHeadline] = useState(editEntry?.newsHeadline || '');
   const [entryDate, setEntryDate] = useState(
     editEntry?.manualDate
       ? editEntry.manualDate.slice(0, 10)
       : new Date().toISOString().slice(0, 10)
   );
-  const [showManualLocation, setShowManualLocation] = useState(false);
-  const [manualCity, setManualCity] = useState(editEntry?.location?.city || '');
-  const [manualCountry, setManualCountry] = useState(editEntry?.location?.country || '');
-  const [manualLat, setManualLat] = useState(editEntry?.location?.lat?.toString() || '');
-  const [manualLng, setManualLng] = useState(editEntry?.location?.lng?.toString() || '');
+  const [showLocationSearch, setShowLocationSearch] = useState(false);
+  const [locationQuery, setLocationQuery] = useState('');
+  const [geocodeResults, setGeocodeResults] = useState<GeocodingResult[]>([]);
+  const [isSearchingLocation, setIsSearchingLocation] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Auto-get location on mount
   useEffect(() => {
@@ -100,34 +89,39 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
     setPhotos((prev) => prev.filter((p) => p.id !== id));
   };
 
-  const applyManualLocation = () => {
-    const lat = parseFloat(manualLat);
-    const lng = parseFloat(manualLng);
-    if (manualCity || manualCountry) {
-      setEntryLocation({
-        lat: isNaN(lat) ? 0 : lat,
-        lng: isNaN(lng) ? 0 : lng,
-        city: manualCity || undefined,
-        country: manualCountry || undefined,
-        placeName: [manualCity, manualCountry].filter(Boolean).join(', ') || undefined,
-      });
+  // Debounced geocode search
+  const handleLocationQueryChange = useCallback((query: string) => {
+    setLocationQuery(query);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    if (!query.trim()) {
+      setGeocodeResults([]);
+      return;
     }
+
+    debounceRef.current = setTimeout(async () => {
+      setIsSearchingLocation(true);
+      const results = await geocodePlace(query);
+      setGeocodeResults(results);
+      setIsSearchingLocation(false);
+    }, 400);
+  }, []);
+
+  const selectGeocodedLocation = (result: GeocodingResult) => {
+    setEntryLocation({
+      lat: result.lat,
+      lng: result.lng,
+      city: result.city || undefined,
+      country: result.country || undefined,
+      placeName: result.displayName.split(',').slice(0, 3).join(',').trim() || undefined,
+    });
+    setShowLocationSearch(false);
+    setLocationQuery('');
+    setGeocodeResults([]);
   };
 
   const handleSave = async (shouldPublish: boolean) => {
-    // If manual location is showing and fields filled, apply it
-    if (showManualLocation && !entryLocation && (manualCity || manualCountry)) {
-      applyManualLocation();
-    }
-
-    const loc = entryLocation || (showManualLocation ? {
-      lat: parseFloat(manualLat) || 0,
-      lng: parseFloat(manualLng) || 0,
-      city: manualCity || undefined,
-      country: manualCountry || undefined,
-      placeName: [manualCity, manualCountry].filter(Boolean).join(', ') || undefined,
-    } : null);
-
+    const loc = entryLocation;
     if (!loc) return;
     setIsSaving(true);
 
@@ -141,7 +135,7 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
       location: loc,
       title: title || `Entry from ${loc.city || loc.country || 'Unknown'}`,
       content,
-      mood: mood as JournalEntry['mood'],
+      mood: mood || undefined,
       photos,
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
       isPublished: shouldPublish,
@@ -169,7 +163,7 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
     onClose();
   };
 
-  const selectedMood = MOODS.find((m) => m.value === mood);
+  const moodColor = getMoodColor(mood || undefined);
 
   return (
     <div className="new-entry-overlay">
@@ -207,6 +201,9 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
               <MapPin size={16} />
               <span>{entryLocation.city || entryLocation.placeName || formatCoordinates(entryLocation.lat, entryLocation.lng)}</span>
               {entryLocation.country && <span className="location-country">{entryLocation.country}</span>}
+              <button className="btn-icon-sm" onClick={() => setEntryLocation(null)} title="Change location">
+                <X size={12} />
+              </button>
             </div>
           ) : (
             <div className="location-actions">
@@ -215,55 +212,41 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
                 <span>Use GPS</span>
               </button>
               <span className="location-or">or</span>
-              <button className="btn-text" onClick={() => setShowManualLocation(!showManualLocation)}>
-                <Globe size={16} />
-                <span>Enter Manually</span>
+              <button className="btn-text" onClick={() => setShowLocationSearch(!showLocationSearch)}>
+                <Search size={16} />
+                <span>Search location</span>
               </button>
             </div>
           )}
-          {geoError && !showManualLocation && <p className="error-text">{geoError}</p>}
-          {showManualLocation && !entryLocation && (
-            <div className="manual-location-fields">
-              <div className="manual-location-row">
+          {geoError && !showLocationSearch && <p className="error-text">{geoError}</p>}
+          {showLocationSearch && !entryLocation && (
+            <div className="location-search-wrapper">
+              <div className="location-search-input-wrap">
+                <Search size={14} />
                 <input
-                  className="manual-location-input"
+                  className="location-search-input"
                   type="text"
-                  placeholder="City"
-                  value={manualCity}
-                  onChange={(e) => setManualCity(e.target.value)}
+                  placeholder="Search for a place... (e.g. Istanbul, Turkey)"
+                  value={locationQuery}
+                  onChange={(e) => handleLocationQueryChange(e.target.value)}
+                  autoFocus
                 />
-                <input
-                  className="manual-location-input"
-                  type="text"
-                  placeholder="Country"
-                  value={manualCountry}
-                  onChange={(e) => setManualCountry(e.target.value)}
-                />
+                {isSearchingLocation && <Loader2 size={14} className="spin" />}
               </div>
-              <div className="manual-location-row">
-                <input
-                  className="manual-location-input"
-                  type="text"
-                  placeholder="Latitude (optional)"
-                  value={manualLat}
-                  onChange={(e) => setManualLat(e.target.value)}
-                />
-                <input
-                  className="manual-location-input"
-                  type="text"
-                  placeholder="Longitude (optional)"
-                  value={manualLng}
-                  onChange={(e) => setManualLng(e.target.value)}
-                />
-              </div>
-              <button
-                className="btn btn-secondary btn-sm"
-                onClick={applyManualLocation}
-                disabled={!manualCity && !manualCountry}
-              >
-                <MapPin size={14} />
-                <span>Set Location</span>
-              </button>
+              {geocodeResults.length > 0 && (
+                <div className="location-search-results">
+                  {geocodeResults.map((result, i) => (
+                    <button
+                      key={i}
+                      className="location-search-result"
+                      onClick={() => selectGeocodedLocation(result)}
+                    >
+                      <MapPin size={12} />
+                      <span>{result.displayName}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -308,37 +291,16 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
 
         {/* Mood */}
         <div className="entry-mood-section">
-          <button
-            className="mood-selector-btn"
-            onClick={() => setShowMoodPicker(!showMoodPicker)}
-          >
-            {selectedMood ? (
-              <>
-                <span>{selectedMood.emoji}</span>
-                <span>{selectedMood.label}</span>
-              </>
-            ) : (
-              <span>How are you feeling?</span>
-            )}
-            <ChevronDown size={16} />
-          </button>
-          {showMoodPicker && (
-            <div className="mood-grid">
-              {MOODS.map((m) => (
-                <button
-                  key={m.value}
-                  className={`mood-option ${mood === m.value ? 'selected' : ''}`}
-                  onClick={() => {
-                    setMood(m.value);
-                    setShowMoodPicker(false);
-                  }}
-                >
-                  <span className="mood-emoji">{m.emoji}</span>
-                  <span className="mood-label">{m.label}</span>
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="mood-text-input-wrap">
+            <div className="mood-preview" style={{ backgroundColor: moodColor }} />
+            <input
+              className="mood-text-input"
+              type="text"
+              placeholder="How are you feeling? (e.g. grateful, anxious, mixed...)"
+              value={mood}
+              onChange={(e) => setMood(e.target.value)}
+            />
+          </div>
         </div>
 
         {/* Photos */}
@@ -395,7 +357,7 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
           <button
             className="btn btn-secondary"
             onClick={() => handleSave(false)}
-            disabled={(!entryLocation && !manualCity && !manualCountry) || !content || isSaving}
+            disabled={!entryLocation || !content || isSaving}
           >
             <Save size={16} />
             <span>Save Draft</span>
@@ -403,7 +365,7 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
           <button
             className="btn btn-primary"
             onClick={() => handleSave(true)}
-            disabled={(!entryLocation && !manualCity && !manualCountry) || !content || isSaving}
+            disabled={!entryLocation || !content || isSaving}
           >
             {isSaving ? <Loader2 size={16} className="spin" /> : <Send size={16} />}
             <span>Publish</span>

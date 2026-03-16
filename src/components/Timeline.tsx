@@ -2,23 +2,8 @@ import { useEffect, useRef } from 'react';
 import { MapPin } from 'lucide-react';
 import { format } from 'date-fns';
 import { getEntryDisplayDate } from '../store/journalStore';
+import { getMoodColor } from '../utils/sentiment';
 import type { JournalEntry } from '../types';
-
-const MOOD_EMOJI: Record<string, string> = {
-  hopeful: '\u{1F305}', anxious: '\u{1F630}', grateful: '\u{1F64F}', reflective: '\u{1FA9E}',
-  determined: '\u{1F4AA}', somber: '\u{1F327}\u{FE0F}', joyful: '\u2728', exhausted: '\u{1F62E}\u200D\u{1F4A8}',
-};
-
-const MOOD_COLORS: Record<string, string> = {
-  hopeful: '#4ade80',
-  anxious: '#f97316',
-  grateful: '#a78bfa',
-  reflective: '#60a5fa',
-  determined: '#f59e0b',
-  somber: '#6b7280',
-  joyful: '#fbbf24',
-  exhausted: '#ef4444',
-};
 
 interface TimelineProps {
   entries: JournalEntry[];
@@ -53,7 +38,7 @@ export default function Timeline({ entries, activeEntryId, onEntryClick }: Timel
           <div key={month} className="sidebar-timeline__month">
             <div className="sidebar-timeline__month-label">{month}</div>
             {monthEntries.map((entry) => {
-              const moodColor = entry.mood ? MOOD_COLORS[entry.mood] : '#f0a500';
+              const moodColor = getMoodColor(entry.mood);
               const isActive = activeEntryId === entry.id;
 
               return (
@@ -68,7 +53,6 @@ export default function Timeline({ entries, activeEntryId, onEntryClick }: Timel
                   <div className="sidebar-timeline__info">
                     <span className="sidebar-timeline__date">
                       {format(new Date(getEntryDisplayDate(entry)), 'MMM d')}
-                      {entry.mood && <span className="sidebar-timeline__mood">{MOOD_EMOJI[entry.mood]}</span>}
                     </span>
                     <span className="sidebar-timeline__city">
                       <MapPin size={9} />

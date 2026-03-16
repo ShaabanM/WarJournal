@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { BookOpen, Search, X } from 'lucide-react';
+import { BookOpen, Search, X, Sun, Moon } from 'lucide-react';
 import { useJournalStore, useSortedEntries, getEntryDisplayDate } from '../store/journalStore';
 import WorldMap from './WorldMap';
 import ScrollyEntry from './ScrollyEntry';
@@ -12,6 +12,7 @@ export default function ReaderView() {
     entries, isLoading, activeEntryId,
     loadPublishedEntries, setViewMode, loadSettings,
     setActiveEntryId, searchQuery, setSearchQuery,
+    settings, setTheme,
   } = useJournalStore();
   const sorted = useSortedEntries();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -76,6 +77,13 @@ export default function ReaderView() {
             <h1>War Journal</h1>
             <p>A journey through conflict</p>
           </div>
+          <button
+            className="btn-icon theme-toggle"
+            onClick={() => setTheme(settings.theme === 'light' ? 'dark' : 'light')}
+            title={settings.theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+          >
+            {settings.theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+          </button>
         </div>
 
         <div className="scrolly-sidebar__search">

@@ -34,6 +34,42 @@ export async function reverseGeocode(lat: number, lng: number): Promise<Partial<
   return {};
 }
 
+export interface GeocodingResult {
+  displayName: string;
+  lat: number;
+  lng: number;
+  city?: string;
+  country?: string;
+}
+
+/**
+ * Forward geocode: search for a place by name using Nominatim.
+ * Returns up to 5 results with coordinates and address info.
+ */
+export async function geocodePlace(query: string): Promise<GeocodingResult[]> {
+  if (!query.trim()) return [];
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&addressdetails=1&accept-language=en`
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.map((item: Record<string, unknown>) => {
+      const address = (item.address || {}) as Record<string, string>;
+      return {
+        displayName: item.display_name as string,
+        lat: parseFloat(item.lat as string),
+        lng: parseFloat(item.lon as string),
+        city: address.city || address.town || address.village || address.county || undefined,
+        country: address.country || undefined,
+      };
+    });
+  } catch (err) {
+    console.warn('Geocode search failed:', err);
+    return [];
+  }
+}
+
 export function formatCoordinates(lat: number, lng: number): string {
   const latDir = lat >= 0 ? 'N' : 'S';
   const lngDir = lng >= 0 ? 'E' : 'W';

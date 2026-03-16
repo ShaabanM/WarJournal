@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   Plus, Settings, Upload, Loader2, BookOpen, MapPin,
-  Calendar, Eye, Pencil, Trash2, Globe, AlertTriangle
+  Calendar, Eye, Pencil, Trash2, Globe, AlertTriangle, Sun, Moon
 } from 'lucide-react';
 import { useJournalStore } from '../store/journalStore';
 import { format } from 'date-fns';
@@ -12,7 +12,7 @@ import type { JournalEntry } from '../types';
 export default function AuthorView() {
   const {
     entries, isPublishing, loadEntries, publish, deleteEntry, flyToEntry,
-    setViewMode, settings
+    setViewMode, settings, setTheme
   } = useJournalStore();
   const [showNewEntry, setShowNewEntry] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -54,6 +54,13 @@ export default function AuthorView() {
         <div className="author-title-row">
           <h1>My Journal</h1>
           <div className="author-header-actions">
+            <button
+              className="btn-icon"
+              onClick={() => setTheme(settings.theme === 'light' ? 'dark' : 'light')}
+              title={settings.theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+            >
+              {settings.theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+            </button>
             <button className="btn-icon" onClick={() => setViewMode('reader')} title="Reader view">
               <Eye size={20} />
             </button>
@@ -157,7 +164,7 @@ export default function AuthorView() {
 
               <div className="entry-card-footer">
                 {entry.mood && (
-                  <span className="entry-card-mood">{getMoodEmoji(entry.mood)} {entry.mood}</span>
+                  <span className="entry-card-mood">{entry.mood}</span>
                 )}
                 <div className="entry-card-actions" onClick={(e) => e.stopPropagation()}>
                   <button className="btn-icon-sm" onClick={() => handleEdit(entry)} title="Edit">
@@ -183,12 +190,4 @@ export default function AuthorView() {
       {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
     </div>
   );
-}
-
-function getMoodEmoji(mood: string): string {
-  const map: Record<string, string> = {
-    hopeful: '🌅', anxious: '😰', grateful: '🙏', reflective: '🪞',
-    determined: '💪', somber: '🌧️', joyful: '✨', exhausted: '😮‍💨',
-  };
-  return map[mood] || '📝';
 }
