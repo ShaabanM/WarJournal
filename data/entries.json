@@ -70,7 +70,7 @@
       },
       "title": "Romaaaa",
       "content": "Mama miaa",
-      "moodColor": "#4caf7d",
+      "moodColor": "#7cb881",
       "photos": [
         {
           "id": "797ffa5e-f786-4053-b2cb-470207d0fac2",
@@ -82,10 +82,10 @@
       "tags": [],
       "isPublished": true,
       "createdAt": "2026-03-16T17:28:32.603Z",
-      "updatedAt": "2026-03-16T17:28:32.603Z",
+      "updatedAt": "2026-03-16T17:29:45.601Z",
       "newsHeadline": "Test"
     }
   ],
-  "exportedAt": "2026-03-16T17:28:34.135Z",
+  "exportedAt": "2026-03-16T17:29:45.603Z",
   "totalEntries": 3
 }
