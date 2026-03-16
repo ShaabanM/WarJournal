@@ -2,10 +2,12 @@ import { create } from 'zustand';
 import type { JournalEntry, AppSettings } from '../types';
 import * as db from '../utils/db';
 import { publishEntries, fetchPublishedEntries } from '../utils/github';
+import { sortEntriesChronologically } from '../utils/journal';
 
 interface JournalState {
   entries: JournalEntry[];
   selectedEntry: JournalEntry | null;
+  previewEntry: JournalEntry | null;
   settings: AppSettings;
   isLoading: boolean;
   isPublishing: boolean;
@@ -33,13 +35,18 @@ interface JournalState {
   saveSettings: (settings: AppSettings) => Promise<void>;
   publish: () => Promise<boolean>;
   flyToEntry: (entry: JournalEntry) => void;
+  previewEntryOnMap: (entry: JournalEntry) => void;
+  clearPreviewEntry: () => void;
 }
 
 export const useJournalStore = create<JournalState>((set, get) => ({
   entries: [],
   selectedEntry: null,
+  previewEntry: null,
   settings: {
     authorName: 'Traveler',
+    journalTitle: 'War Journal',
+    journalSubtitle: 'Field notes from a world unspooling in real time.',
     mapStyle: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
   },
   isLoading: false,
@@ -62,7 +69,7 @@ export const useJournalStore = create<JournalState>((set, get) => ({
     const { settings } = get();
 
     // Always load local entries first — author's entries on this device
-    const localEntries = await db.getAllEntries();
+    const localEntries = (await db.getAllEntries()).filter((entry) => entry.isPublished);
 
     // Then try to load remote/published entries
     let remoteEntries: JournalEntry[] = [];
@@ -119,7 +126,12 @@ export const useJournalStore = create<JournalState>((set, get) => ({
   },
 
   selectEntry: (entry) => {
-    set({ selectedEntry: entry, showEntryDetail: !!entry });
+    set((state) => ({
+      selectedEntry: entry,
+      showEntryDetail: !!entry,
+      previewEntry:
+        entry && !entry.isPublished && state.previewEntry?.id === entry.id ? state.previewEntry : null,
+    }));
   },
 
   setViewMode: (mode) => set({ viewMode: mode }),
@@ -149,6 +161,16 @@ export const useJournalStore = create<JournalState>((set, get) => ({
       },
       published
     );
+    if (success) {
+      const updatedSettings = {
+        ...settings,
+        lastPublishedAt: new Date().toISOString(),
+      };
+      await db.saveSettings(updatedSettings);
+      set({ settings: updatedSettings, isPublishing: false });
+      return true;
+    }
+
     set({ isPublishing: false });
     return success;
   },
@@ -159,8 +181,21 @@ export const useJournalStore = create<JournalState>((set, get) => ({
       mapZoom: 10,
       selectedEntry: entry,
       showEntryDetail: true,
+      previewEntry: entry.isPublished ? null : get().previewEntry,
     });
   },
+
+  previewEntryOnMap: (entry) => {
+    set({
+      mapCenter: [entry.location.lng, entry.location.lat],
+      mapZoom: 10,
+      selectedEntry: entry,
+      showEntryDetail: true,
+      previewEntry: entry,
+    });
+  },
+
+  clearPreviewEntry: () => set({ previewEntry: null }),
 }));
 
 // Derived selectors
@@ -188,5 +223,5 @@ export function useFilteredEntries(): JournalEntry[] {
 
 export function useSortedEntries(): JournalEntry[] {
   const entries = useFilteredEntries();
-  return [...entries].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+  return sortEntriesChronologically(entries);
 }

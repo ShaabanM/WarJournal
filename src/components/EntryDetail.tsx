@@ -3,29 +3,19 @@ import { X, MapPin, Calendar, Clock, ChevronLeft, ChevronRight, Tag } from 'luci
 import { useJournalStore, useSortedEntries } from '../store/journalStore';
 import { format } from 'date-fns';
 import { formatCoordinates } from '../utils/geo';
-
-const MOOD_COLORS: Record<string, string> = {
-  hopeful: '#4ade80',
-  anxious: '#f97316',
-  grateful: '#a78bfa',
-  reflective: '#60a5fa',
-  determined: '#f59e0b',
-  somber: '#6b7280',
-  joyful: '#fbbf24',
-  exhausted: '#ef4444',
-};
-
-const MOOD_EMOJI: Record<string, string> = {
-  hopeful: '🌅', anxious: '😰', grateful: '🙏', reflective: '🪞',
-  determined: '💪', somber: '🌧️', joyful: '✨', exhausted: '😮‍💨',
-};
+import { getMoodMeta } from '../constants/moods';
+import { getLocationLabel, getReadingTimeMinutes } from '../utils/journal';
 
 export default function EntryDetail() {
   const { selectedEntry, setShowEntryDetail, flyToEntry } = useJournalStore();
   const entries = useSortedEntries();
-  const [photoIndex, setPhotoIndex] = useState(0);
+  const [photoState, setPhotoState] = useState<{ entryId: string; index: number }>({
+    entryId: '',
+    index: 0,
+  });
 
   if (!selectedEntry) return null;
+  const photoIndex = photoState.entryId === selectedEntry.id ? photoState.index : 0;
 
   const currentIndex = entries.findIndex((e) => e.id === selectedEntry.id);
   const prevEntry = currentIndex > 0 ? entries[currentIndex - 1] : null;
@@ -33,16 +23,23 @@ export default function EntryDetail() {
 
   const navigateTo = (entry: typeof prevEntry) => {
     if (entry) {
-      setPhotoIndex(0);
       flyToEntry(entry);
     }
   };
 
-  const moodColor = selectedEntry.mood ? MOOD_COLORS[selectedEntry.mood] : undefined;
+  const mood = getMoodMeta(selectedEntry.mood);
+  const moodColor = mood?.color;
+  const primaryLocation = getLocationLabel(selectedEntry.location);
 
   return (
     <div className="entry-detail">
       <div className="entry-detail-header">
+        <div>
+          <p className="eyebrow">Dispatch detail</p>
+          <span className="entry-detail-reading-time">
+            {getReadingTimeMinutes(selectedEntry.content)} min read
+          </span>
+        </div>
         <button className="btn-icon" onClick={() => setShowEntryDetail(false)}>
           <X size={18} />
         </button>
@@ -60,7 +57,12 @@ export default function EntryDetail() {
             <div className="photo-nav">
               <button
                 className="btn-icon photo-nav-btn"
-                onClick={() => setPhotoIndex(Math.max(0, photoIndex - 1))}
+                onClick={() =>
+                  setPhotoState({
+                    entryId: selectedEntry.id,
+                    index: Math.max(0, photoIndex - 1),
+                  })
+                }
                 disabled={photoIndex === 0}
               >
                 <ChevronLeft size={16} />
@@ -68,7 +70,12 @@ export default function EntryDetail() {
               <span className="photo-counter">{photoIndex + 1} / {selectedEntry.photos.length}</span>
               <button
                 className="btn-icon photo-nav-btn"
-                onClick={() => setPhotoIndex(Math.min(selectedEntry.photos.length - 1, photoIndex + 1))}
+                onClick={() =>
+                  setPhotoState({
+                    entryId: selectedEntry.id,
+                    index: Math.min(selectedEntry.photos.length - 1, photoIndex + 1),
+                  })
+                }
                 disabled={photoIndex === selectedEntry.photos.length - 1}
               >
                 <ChevronRight size={16} />
@@ -82,8 +89,8 @@ export default function EntryDetail() {
         {/* Mood badge */}
         {selectedEntry.mood && (
           <div className="entry-detail-mood" style={{ '--mood-color': moodColor } as React.CSSProperties}>
-            <span>{MOOD_EMOJI[selectedEntry.mood]}</span>
-            <span>{selectedEntry.mood}</span>
+            <span>{mood?.emoji}</span>
+            <span>{mood?.label}</span>
           </div>
         )}
 
@@ -101,9 +108,15 @@ export default function EntryDetail() {
           <div className="meta-item">
             <MapPin size={14} />
             <span>
-              {selectedEntry.location.city || selectedEntry.location.placeName || formatCoordinates(selectedEntry.location.lat, selectedEntry.location.lng)}
-              {selectedEntry.location.country ? `, ${selectedEntry.location.country}` : ''}
+              {primaryLocation}
+              {selectedEntry.location.country && primaryLocation !== selectedEntry.location.country
+                ? `, ${selectedEntry.location.country}`
+                : ''}
             </span>
+          </div>
+          <div className="meta-item">
+            <Tag size={14} />
+            <span>{formatCoordinates(selectedEntry.location.lat, selectedEntry.location.lng)}</span>
           </div>
         </div>
 
@@ -135,7 +148,9 @@ export default function EntryDetail() {
           <ChevronLeft size={16} />
           <span>{prevEntry ? format(new Date(prevEntry.timestamp), 'MMM d') : 'Start'}</span>
         </button>
-        <span className="nav-index">{currentIndex + 1} of {entries.length}</span>
+        <span className="nav-index">
+          {currentIndex >= 0 ? `${currentIndex + 1} of ${entries.length}` : 'Preview mode'}
+        </span>
         <button
           className="btn-nav"
           onClick={() => navigateTo(nextEntry)}

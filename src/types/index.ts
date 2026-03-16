@@ -33,6 +33,9 @@ export interface AppSettings {
   githubOwner?: string;
   authorName: string;
   authorPin?: string; // simple pin for author access
+  journalTitle?: string;
+  journalSubtitle?: string;
+  lastPublishedAt?: string;
   mapStyle: string;
 }
 

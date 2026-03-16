@@ -43,6 +43,8 @@ export async function getSettings(): Promise<AppSettings> {
   return settings ?? {
     id: 1,
     authorName: 'Traveler',
+    journalTitle: 'War Journal',
+    journalSubtitle: 'Field notes from a world unspooling in real time.',
     mapStyle: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
   };
 }

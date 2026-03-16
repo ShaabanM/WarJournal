@@ -1,28 +1,21 @@
 import { useJournalStore, useSortedEntries } from '../store/journalStore';
 import { format } from 'date-fns';
 import { MapPin } from 'lucide-react';
-
-const MOOD_EMOJI: Record<string, string> = {
-  hopeful: '🌅', anxious: '😰', grateful: '🙏', reflective: '🪞',
-  determined: '💪', somber: '🌧️', joyful: '✨', exhausted: '😮‍💨',
-};
-
-const MOOD_COLORS: Record<string, string> = {
-  hopeful: '#4ade80',
-  anxious: '#f97316',
-  grateful: '#a78bfa',
-  reflective: '#60a5fa',
-  determined: '#f59e0b',
-  somber: '#6b7280',
-  joyful: '#fbbf24',
-  exhausted: '#ef4444',
-};
+import { DEFAULT_MOOD_COLOR, getMoodMeta } from '../constants/moods';
+import { getExcerpt, getLocationLabel } from '../utils/journal';
 
 export default function Timeline() {
   const entries = useSortedEntries();
   const { flyToEntry, selectedEntry } = useJournalStore();
 
-  if (entries.length === 0) return null;
+  if (entries.length === 0) {
+    return (
+      <div className="timeline timeline-empty">
+        <h3>No dispatches to show yet</h3>
+        <p>Published entries will appear here in chronological order.</p>
+      </div>
+    );
+  }
 
   // Group by month
   const grouped = entries.reduce<Record<string, typeof entries>>((acc, entry) => {
@@ -37,9 +30,13 @@ export default function Timeline() {
       <div className="timeline-track">
         {Object.entries(grouped).map(([month, monthEntries]) => (
           <div key={month} className="timeline-month">
-            <div className="timeline-month-label">{month}</div>
+            <div className="timeline-month-label">
+              <span>{month}</span>
+              <span>{monthEntries.length} entries</span>
+            </div>
             {monthEntries.map((entry) => {
-              const moodColor = entry.mood ? MOOD_COLORS[entry.mood] : '#f0a500';
+              const mood = getMoodMeta(entry.mood);
+              const moodColor = mood?.color ?? DEFAULT_MOOD_COLOR;
               const isSelected = selectedEntry?.id === entry.id;
 
               return (
@@ -54,13 +51,14 @@ export default function Timeline() {
                   <div className="timeline-content">
                     <div className="timeline-date">
                       {format(new Date(entry.timestamp), 'MMM d')}
-                      {entry.mood && <span className="timeline-mood">{MOOD_EMOJI[entry.mood]}</span>}
+                      {mood ? <span className="timeline-mood">{mood.emoji}</span> : null}
                     </div>
                     <div className="timeline-title">{entry.title}</div>
                     <div className="timeline-location">
                       <MapPin size={10} />
-                      {entry.location.city || entry.location.country || 'Unknown'}
+                      {getLocationLabel(entry.location)}
                     </div>
+                    <p className="timeline-excerpt">{getExcerpt(entry.content, 110)}</p>
                   </div>
                   {entry.photos.length > 0 && (
                     <img
