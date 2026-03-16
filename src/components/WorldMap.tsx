@@ -207,7 +207,7 @@ function createMarkerElement(entry: JournalEntry, isLatest: boolean): HTMLElemen
   const el = document.createElement('div');
   el.className = `map-marker ${isLatest ? 'marker-latest' : ''}`;
 
-  const color = getMoodColor(entry.mood);
+  const color = getMoodColor(entry.mood, entry.moodColor);
 
   el.innerHTML = `
     <div class="marker-pin" style="--marker-color: ${color}">

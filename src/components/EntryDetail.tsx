@@ -23,7 +23,7 @@ export default function EntryDetail() {
     }
   };
 
-  const moodColor = getMoodColor(selectedEntry.mood);
+  const moodColor = getMoodColor(selectedEntry.mood, selectedEntry.moodColor);
 
   return (
     <div className="entry-detail">

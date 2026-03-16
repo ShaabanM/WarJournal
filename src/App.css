@@ -1587,6 +1587,33 @@ body {
   color: var(--text-muted);
 }
 
+.mood-color-picker {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 0 2px;
+}
+
+.mood-color-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s var(--ease), border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
+  flex-shrink: 0;
+}
+
+.mood-color-swatch:hover {
+  transform: scale(1.15);
+}
+
+.mood-color-swatch.active {
+  border-color: var(--text-primary);
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--text-primary);
+  transform: scale(1.1);
+}
+
 /* Photos */
 .entry-photos-section {
   margin-bottom: 12px;

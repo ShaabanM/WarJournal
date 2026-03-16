@@ -8,7 +8,7 @@ import { useSpeechToText } from '../hooks/useSpeechToText';
 import { useJournalStore } from '../store/journalStore';
 import { compressImage, createPhoto } from '../utils/photos';
 import { formatCoordinates, geocodePlace, type GeocodingResult } from '../utils/geo';
-import { getMoodColor } from '../utils/sentiment';
+import { getMoodColor, MOOD_COLOR_PRESETS } from '../utils/sentiment';
 import type { JournalEntry, EntryPhoto, GeoLocation } from '../types';
 
 interface NewEntryProps {
@@ -27,6 +27,7 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
   const [title, setTitle] = useState(editEntry?.title || '');
   const [content, setContent] = useState(editEntry?.content || '');
   const [mood, setMood] = useState<string>(editEntry?.mood || '');
+  const [moodColor, setMoodColor] = useState<string>(editEntry?.moodColor || '');
   const [photos, setPhotos] = useState<EntryPhoto[]>(editEntry?.photos || []);
   const [tags, setTags] = useState<string>(editEntry?.tags?.join(', ') || '');
   const [entryLocation, setEntryLocation] = useState<GeoLocation | null>(editEntry?.location || null);
@@ -141,6 +142,7 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
       title: title || `Entry from ${loc.city || loc.country || 'Unknown'}`,
       content,
       mood: mood || undefined,
+      moodColor: moodColor || undefined,
       photos,
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
       isPublished: !asDraft,
@@ -160,7 +162,6 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
     onClose();
   };
 
-  const moodColor = getMoodColor(mood || undefined);
   const saving = localSaving || isSaving;
 
   return (
@@ -290,7 +291,7 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
         {/* Mood */}
         <div className="entry-mood-section">
           <div className="mood-text-input-wrap">
-            <div className="mood-preview" style={{ backgroundColor: moodColor }} />
+            <div className="mood-preview" style={{ backgroundColor: getMoodColor(mood || undefined, moodColor || undefined) }} />
             <input
               className="mood-text-input"
               type="text"
@@ -298,6 +299,18 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
               value={mood}
               onChange={(e) => setMood(e.target.value)}
             />
+          </div>
+          <div className="mood-color-picker">
+            {MOOD_COLOR_PRESETS.map((preset) => (
+              <button
+                key={preset.color}
+                className={`mood-color-swatch ${moodColor === preset.color ? 'active' : ''}`}
+                style={{ backgroundColor: preset.color }}
+                onClick={() => setMoodColor(moodColor === preset.color ? '' : preset.color)}
+                title={preset.label}
+                type="button"
+              />
+            ))}
           </div>
         </div>
 

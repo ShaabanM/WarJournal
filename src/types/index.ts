@@ -13,6 +13,7 @@ export interface JournalEntry {
   title: string;
   content: string;
   mood?: string; // Free text. Old values ('hopeful', etc.) still valid.
+  moodColor?: string; // User-chosen color hex (e.g. '#d97c7c')
   photos: EntryPhoto[];
   tags: string[];
   isPublished: boolean;

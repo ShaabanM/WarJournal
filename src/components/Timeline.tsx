@@ -38,7 +38,7 @@ export default function Timeline({ entries, activeEntryId, onEntryClick }: Timel
           <div key={month} className="sidebar-timeline__month">
             <div className="sidebar-timeline__month-label">{month}</div>
             {monthEntries.map((entry) => {
-              const moodColor = getMoodColor(entry.mood);
+              const moodColor = getMoodColor(entry.mood, entry.moodColor);
               const isActive = activeEntryId === entry.id;
 
               return (

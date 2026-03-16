@@ -21,7 +21,7 @@ export default function ScrollyEntry({ entry, isActive, index, registerRef }: Sc
   );
 
   const displayDate = getEntryDisplayDate(entry);
-  const moodColor = getMoodColor(entry.mood);
+  const moodColor = getMoodColor(entry.mood, entry.moodColor);
   const dayNumber = index + 1;
 
   return (

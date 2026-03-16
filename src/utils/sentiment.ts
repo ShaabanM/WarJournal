@@ -86,10 +86,27 @@ export function sentimentToColor(score: number): string {
 }
 
 /**
- * Get a color for a mood string. Checks the legacy map first for backward compat,
- * then falls back to sentiment analysis.
+ * Preset mood color palette — red (bad) → amber (mixed) → green (good).
+ * Used by the color picker in NewEntry.
  */
-export function getMoodColor(mood: string | undefined): string {
+export const MOOD_COLOR_PRESETS = [
+  { color: '#d9534f', label: 'Terrible' },
+  { color: '#d97c7c', label: 'Bad' },
+  { color: '#d4a574', label: 'Uneasy' },
+  { color: '#c9b458', label: 'Mixed' },
+  { color: '#a3b07c', label: 'Okay' },
+  { color: '#7cb881', label: 'Good' },
+  { color: '#4caf7d', label: 'Great' },
+];
+
+/**
+ * Get a color for a mood string. Priority:
+ * 1. Explicit moodColor (user picked from palette)
+ * 2. Legacy map (backward compat)
+ * 3. Sentiment analysis fallback
+ */
+export function getMoodColor(mood: string | undefined, moodColor?: string): string {
+  if (moodColor) return moodColor;
   if (!mood) return '#8a8580'; // neutral gray
 
   // Check legacy map first
