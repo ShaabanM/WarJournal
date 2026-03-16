@@ -89,14 +89,14 @@
   --shadow-glow: 0 0 30px rgba(139, 111, 71, 0.08);
 }
 
-/* Light mode: warm parchment treatment for watercolor tiles */
+/* Light mode: sunlit aged parchment */
 [data-theme="light"] .scrolly-map-sticky .world-map {
-  filter: sepia(0.3) saturate(0.5) contrast(1.1) brightness(1.02) hue-rotate(-8deg);
+  filter: sepia(0.55) saturate(0.4) contrast(1.15) brightness(0.95) hue-rotate(-12deg);
 }
 
 [data-theme="light"] .scrolly-map-sticky::before {
-  background: rgba(139, 111, 71, 0.06);
-  box-shadow: inset 0 0 120px 50px rgba(101, 67, 33, 0.3);
+  background: rgba(120, 85, 40, 0.08);
+  box-shadow: inset 0 0 130px 55px rgba(80, 50, 20, 0.35);
 }
 
 [data-theme="light"] .marker-dot {
@@ -518,8 +518,8 @@ body {
   position: absolute;
   inset: 0;
   z-index: 0;
-  /* Dark mode: candlelit parchment — darken watercolor tiles dramatically */
-  filter: brightness(0.32) sepia(0.5) saturate(0.7) contrast(1.35) hue-rotate(-10deg);
+  /* Dark mode: aged parchment by candlelight */
+  filter: brightness(0.28) sepia(0.7) saturate(0.5) contrast(1.4) hue-rotate(-15deg);
 }
 
 /* Parchment overlay + medieval vignette (dark edges) */
@@ -527,12 +527,12 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(40, 30, 15, 0.15);
+  background: rgba(60, 40, 15, 0.2);
   mix-blend-mode: multiply;
   pointer-events: none;
   z-index: 1;
   /* Medieval vignette — darkened edges like aged parchment */
-  box-shadow: inset 0 0 150px 60px rgba(20, 15, 5, 0.65);
+  box-shadow: inset 0 0 150px 60px rgba(20, 15, 5, 0.7);
 }
 
 /* Subtle left-edge shadow on map for depth separation */

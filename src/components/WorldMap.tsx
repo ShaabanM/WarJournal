@@ -6,29 +6,8 @@ import { getMoodColor } from '../utils/sentiment';
 import type { JournalEntry } from '../types';
 import { format } from 'date-fns';
 
-// Medieval parchment map — hand-painted Stamen Watercolor raster tiles
-const MEDIEVAL_STYLE = {
-  version: 8 as const,
-  sources: {
-    'stamen-watercolor': {
-      type: 'raster' as const,
-      tiles: [
-        'https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg',
-      ],
-      tileSize: 256,
-      maxzoom: 16,
-      attribution:
-        '&copy; <a href="https://stamen.com">Stamen Design</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    },
-  },
-  layers: [
-    {
-      id: 'stamen-watercolor-layer',
-      type: 'raster' as const,
-      source: 'stamen-watercolor',
-    },
-  ],
-};
+// Use CARTO Positron (light, minimal) as a base — CSS filters transform it into parchment
+const PARCHMENT_BASE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 
 export default function WorldMap() {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -46,13 +25,12 @@ export default function WorldMap() {
 
     const map = new maplibregl.Map({
       container: mapContainer.current,
-      style: MEDIEVAL_STYLE,
+      style: PARCHMENT_BASE,
       center: mapCenter,
       zoom: mapZoom,
       pitch: 35,
       bearing: -10,
       maxPitch: 60,
-      maxZoom: 16,
     });
 
     map.addControl(new maplibregl.NavigationControl({ showCompass: true }), 'bottom-right');
@@ -82,10 +60,12 @@ export default function WorldMap() {
     return () => ro.disconnect();
   }, [mapLoaded]);
 
-  // Theme changes — same watercolor tiles for both modes, CSS handles dark/light
+  // Theme changes — same positron base for both, CSS handles parchment look
+  // Re-trigger journey line + markers rebuild so lineColor updates
   useEffect(() => {
     if (!mapRef.current || !mapLoaded) return;
-    mapRef.current.resize();
+    setMapLoaded(false);
+    requestAnimationFrame(() => setMapLoaded(true));
   }, [isDark]);
 
   // Fly to center when it changes (user-initiated, e.g. flyToEntry in author view)
