@@ -1,6 +1,25 @@
 {
   "entries": [
     {
+      "id": "0e2c8afe-a9c3-4c75-a349-b326a9a5d9b5",
+      "timestamp": "2026-03-16T09:55:32.023Z",
+      "location": {
+        "lat": 41.90760058837886,
+        "lng": 12.47143651213418,
+        "placeName": "Via Giuseppe Gioachino Belli, Prati, Municipio Roma I",
+        "city": "Rome",
+        "country": "Italy"
+      },
+      "title": "Test",
+      "content": "Test",
+      "mood": "",
+      "photos": [],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-03-16T09:55:32.023Z",
+      "updatedAt": "2026-03-16T09:55:32.023Z"
+    },
+    {
       "id": "87010584-4688-4734-b248-178c44c3677e",
       "timestamp": "2026-03-16T05:46:34.711Z",
       "location": {
@@ -26,6 +45,6 @@
       "updatedAt": "2026-03-16T05:46:34.711Z"
     }
   ],
-  "exportedAt": "2026-03-16T09:55:11.882Z",
-  "totalEntries": 1
+  "exportedAt": "2026-03-16T09:57:32.256Z",
+  "totalEntries": 2
 }
