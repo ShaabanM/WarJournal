@@ -211,33 +211,49 @@ export const useJournalStore = create<JournalState>((set, get) => ({
       // If remote fetch fails, proceed with local-only
     }
 
-    // 3. Smart merge:
+    // 3. Smart merge with photo preservation:
     //    - For entries that exist both locally and remotely: keep the one
-    //      with the newer updatedAt. If local is unpublished (draft), remove it.
+    //      with the newer updatedAt, BUT always merge photos from both
+    //      (local dataUrl + remote remoteUrl) so photo data is never lost.
     //    - For entries only on remote: keep them (from other devices).
     //    - For entries only local and published: add them.
     //    - For entries only local and draft: skip (don't publish).
-    //    - For entries deleted locally (exist remote but not local): remove them.
     const mergedMap = new Map<string, JournalEntry>();
+
+    // Helper: merge photos from two versions of the same entry.
+    // Preserves local dataUrl and remote remoteUrl for each photo.
+    const mergePhotos = (primary: JournalEntry, secondary: JournalEntry): JournalEntry => {
+      const photoMap = new Map(primary.photos.map((p) => [p.id, { ...p }]));
+      for (const sp of secondary.photos) {
+        const existing = photoMap.get(sp.id);
+        if (existing) {
+          // Merge: prefer non-empty values from either side
+          if (!existing.dataUrl && sp.dataUrl) existing.dataUrl = sp.dataUrl;
+          if (!existing.remoteUrl && sp.remoteUrl) existing.remoteUrl = sp.remoteUrl;
+        } else {
+          photoMap.set(sp.id, { ...sp });
+        }
+      }
+      return { ...primary, photos: Array.from(photoMap.values()) };
+    };
 
     // Start with remote entries
     for (const remote of remoteEntries) {
       const local = localById.get(remote.id);
 
       if (!local) {
-        // Entry exists remotely but NOT locally — could be from another device,
-        // or could have been deleted on this device. We keep it (safe default:
-        // another device's entries should not be removed by a device that
-        // never had them). Deletion requires the entry to have existed locally.
+        // Entry exists remotely but NOT locally — from another device. Keep it.
         mergedMap.set(remote.id, remote);
       } else if (!local.isPublished) {
         // Entry exists locally as draft (unpublished) — author wants it removed
         // from the public feed. Don't add it to merged.
       } else {
-        // Both exist and local is published — keep the newer one
+        // Both exist and local is published — keep newer, merge photos from both
         const localTime = new Date(local.updatedAt).getTime();
         const remoteTime = new Date(remote.updatedAt).getTime();
-        mergedMap.set(remote.id, localTime >= remoteTime ? local : remote);
+        const winner = localTime >= remoteTime ? local : remote;
+        const loser = localTime >= remoteTime ? remote : local;
+        mergedMap.set(remote.id, mergePhotos(winner, loser));
       }
     }
 
