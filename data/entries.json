@@ -1,0 +1,26 @@
+{
+  "entries": [
+    {
+      "id": "5c85bbde-d476-43f6-a69f-264537578c10",
+      "timestamp": "2026-03-16T09:33:57.531Z",
+      "location": {
+        "lat": 0,
+        "lng": 0,
+        "city": "rome",
+        "placeName": "rome"
+      },
+      "title": "Entry from rome",
+      "content": "test",
+      "mood": "",
+      "photos": [],
+      "tags": [
+        "sf"
+      ],
+      "isPublished": true,
+      "createdAt": "2026-03-16T09:33:57.531Z",
+      "updatedAt": "2026-03-16T09:33:57.531Z"
+    }
+  ],
+  "exportedAt": "2026-03-16T09:33:57.542Z",
+  "totalEntries": 1
+}
