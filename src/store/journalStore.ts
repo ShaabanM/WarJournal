@@ -15,6 +15,7 @@ interface JournalState {
   searchQuery: string;
   filterMood: string | null;
   showEntryDetail: boolean;
+  activeEntryId: string | null;
 
   // Actions
   loadEntries: () => Promise<void>;
@@ -30,6 +31,7 @@ interface JournalState {
   setSearchQuery: (query: string) => void;
   setFilterMood: (mood: string | null) => void;
   setShowEntryDetail: (show: boolean) => void;
+  setActiveEntryId: (id: string | null) => void;
   saveSettings: (settings: AppSettings) => Promise<void>;
   publish: () => Promise<boolean>;
   flyToEntry: (entry: JournalEntry) => void;
@@ -50,6 +52,7 @@ export const useJournalStore = create<JournalState>((set, get) => ({
   searchQuery: '',
   filterMood: null,
   showEntryDetail: false,
+  activeEntryId: null,
 
   loadEntries: async () => {
     set({ isLoading: true });
@@ -128,6 +131,7 @@ export const useJournalStore = create<JournalState>((set, get) => ({
   setSearchQuery: (query) => set({ searchQuery: query }),
   setFilterMood: (mood) => set({ filterMood: mood }),
   setShowEntryDetail: (show) => set({ showEntryDetail: show }),
+  setActiveEntryId: (id) => set({ activeEntryId: id }),
 
   saveSettings: async (settings) => {
     await db.saveSettings(settings);
@@ -186,7 +190,16 @@ export function useFilteredEntries(): JournalEntry[] {
   });
 }
 
+/** Returns the display date for an entry — prefers manualDate over timestamp */
+export function getEntryDisplayDate(entry: JournalEntry): string {
+  return entry.manualDate || entry.timestamp;
+}
+
 export function useSortedEntries(): JournalEntry[] {
   const entries = useFilteredEntries();
-  return [...entries].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+  return [...entries].sort(
+    (a, b) =>
+      new Date(getEntryDisplayDate(a)).getTime() -
+      new Date(getEntryDisplayDate(b)).getTime()
+  );
 }

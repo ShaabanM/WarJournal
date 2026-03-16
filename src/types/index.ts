@@ -18,6 +18,8 @@ export interface JournalEntry {
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
+  newsHeadline?: string; // Author's summary of the day's world news
+  manualDate?: string; // ISO date when author picks a past date
 }
 
 export interface EntryPhoto {

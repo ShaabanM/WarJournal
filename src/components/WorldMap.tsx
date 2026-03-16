@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { useJournalStore, useSortedEntries } from '../store/journalStore';
+import { useJournalStore, useSortedEntries, getEntryDisplayDate } from '../store/journalStore';
 import type { JournalEntry } from '../types';
 import { format } from 'date-fns';
 
@@ -22,8 +22,9 @@ export default function WorldMap() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
+  const lastFlyRef = useRef<string>('');
   const entries = useSortedEntries();
-  const { mapCenter, mapZoom, selectEntry, selectedEntry } = useJournalStore();
+  const { mapCenter, mapZoom, selectEntry, selectedEntry, activeEntryId } = useJournalStore();
   const [mapLoaded, setMapLoaded] = useState(false);
 
   // Initialize map
@@ -53,7 +54,20 @@ export default function WorldMap() {
     };
   }, []);
 
-  // Fly to center when it changes
+  // ResizeObserver — resize map when container size changes (sticky layout)
+  useEffect(() => {
+    if (!mapContainer.current || !mapRef.current) return;
+    const map = mapRef.current;
+
+    const ro = new ResizeObserver(() => {
+      map.resize();
+    });
+    ro.observe(mapContainer.current);
+
+    return () => ro.disconnect();
+  }, [mapLoaded]);
+
+  // Fly to center when it changes (user-initiated, e.g. flyToEntry in author view)
   useEffect(() => {
     if (mapRef.current && mapLoaded) {
       mapRef.current.flyTo({
@@ -64,6 +78,25 @@ export default function WorldMap() {
       });
     }
   }, [mapCenter, mapZoom, mapLoaded]);
+
+  // Scroll-driven flyTo when activeEntryId changes
+  useEffect(() => {
+    if (!mapRef.current || !mapLoaded || !activeEntryId) return;
+
+    const entry = entries.find((e) => e.id === activeEntryId);
+    if (!entry) return;
+
+    const key = `${entry.location.lng},${entry.location.lat}`;
+    if (key === lastFlyRef.current) return; // skip duplicate
+    lastFlyRef.current = key;
+
+    mapRef.current.flyTo({
+      center: [entry.location.lng, entry.location.lat],
+      zoom: Math.max(mapRef.current.getZoom(), 5),
+      duration: 1200,
+      essential: true,
+    });
+  }, [activeEntryId, entries, mapLoaded]);
 
   // Draw journey line and markers
   useEffect(() => {
@@ -139,17 +172,20 @@ export default function WorldMap() {
     });
   }, [entries, mapLoaded, selectEntry]);
 
-  // Highlight selected marker
+  // Highlight active / selected marker
   useEffect(() => {
     markersRef.current.forEach((marker, i) => {
       const el = marker.getElement();
-      if (entries[i] && selectedEntry && entries[i].id === selectedEntry.id) {
-        el.classList.add('marker-selected');
-      } else {
-        el.classList.remove('marker-selected');
-      }
+      const entry = entries[i];
+      if (!entry) return;
+
+      const isSelected = selectedEntry && entry.id === selectedEntry.id;
+      const isActive = activeEntryId === entry.id;
+
+      el.classList.toggle('marker-selected', !!isSelected);
+      el.classList.toggle('marker-active', !!isActive);
     });
-  }, [selectedEntry, entries]);
+  }, [selectedEntry, activeEntryId, entries]);
 
   return (
     <div className="world-map" ref={mapContainer} />
@@ -168,7 +204,7 @@ function createMarkerElement(entry: JournalEntry, isLatest: boolean): HTMLElemen
       ${isLatest ? '<div class="marker-pulse"></div>' : ''}
     </div>
     <div class="marker-label">
-      <span class="marker-date">${format(new Date(entry.timestamp), 'MMM d')}</span>
+      <span class="marker-date">${format(new Date(getEntryDisplayDate(entry)), 'MMM d')}</span>
     </div>
   `;
 

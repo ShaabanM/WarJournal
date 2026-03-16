@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   MapPin, Mic, MicOff, Camera, X, Save, Send, Loader2,
-  Navigation, ChevronDown
+  Navigation, ChevronDown, CalendarDays, Newspaper, Globe
 } from 'lucide-react';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useSpeechToText } from '../hooks/useSpeechToText';
@@ -42,6 +42,17 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
   const [entryLocation, setEntryLocation] = useState<GeoLocation | null>(editEntry?.location || null);
   const [isSaving, setIsSaving] = useState(false);
   const [showMoodPicker, setShowMoodPicker] = useState(false);
+  const [newsHeadline, setNewsHeadline] = useState(editEntry?.newsHeadline || '');
+  const [entryDate, setEntryDate] = useState(
+    editEntry?.manualDate
+      ? editEntry.manualDate.slice(0, 10)
+      : new Date().toISOString().slice(0, 10)
+  );
+  const [showManualLocation, setShowManualLocation] = useState(false);
+  const [manualCity, setManualCity] = useState(editEntry?.location?.city || '');
+  const [manualCountry, setManualCountry] = useState(editEntry?.location?.country || '');
+  const [manualLat, setManualLat] = useState(editEntry?.location?.lat?.toString() || '');
+  const [manualLng, setManualLng] = useState(editEntry?.location?.lng?.toString() || '');
 
   // Auto-get location on mount
   useEffect(() => {
@@ -89,16 +100,46 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
     setPhotos((prev) => prev.filter((p) => p.id !== id));
   };
 
+  const applyManualLocation = () => {
+    const lat = parseFloat(manualLat);
+    const lng = parseFloat(manualLng);
+    if (manualCity || manualCountry) {
+      setEntryLocation({
+        lat: isNaN(lat) ? 0 : lat,
+        lng: isNaN(lng) ? 0 : lng,
+        city: manualCity || undefined,
+        country: manualCountry || undefined,
+        placeName: [manualCity, manualCountry].filter(Boolean).join(', ') || undefined,
+      });
+    }
+  };
+
   const handleSave = async (shouldPublish: boolean) => {
-    if (!entryLocation) return;
+    // If manual location is showing and fields filled, apply it
+    if (showManualLocation && !entryLocation && (manualCity || manualCountry)) {
+      applyManualLocation();
+    }
+
+    const loc = entryLocation || (showManualLocation ? {
+      lat: parseFloat(manualLat) || 0,
+      lng: parseFloat(manualLng) || 0,
+      city: manualCity || undefined,
+      country: manualCountry || undefined,
+      placeName: [manualCity, manualCountry].filter(Boolean).join(', ') || undefined,
+    } : null);
+
+    if (!loc) return;
     setIsSaving(true);
 
     const now = new Date().toISOString();
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const isManualDate = entryDate !== todayStr;
+
     const entry: JournalEntry = {
       id: editEntry?.id || crypto.randomUUID(),
       timestamp: editEntry?.timestamp || now,
-      location: entryLocation,
-      title: title || `Entry from ${entryLocation.city || entryLocation.country || 'Unknown'}`,
+      location: loc,
+      title: title || `Entry from ${loc.city || loc.country || 'Unknown'}`,
       content,
       mood: mood as JournalEntry['mood'],
       photos,
@@ -106,6 +147,8 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
       isPublished: shouldPublish,
       createdAt: editEntry?.createdAt || now,
       updatedAt: now,
+      newsHeadline: newsHeadline || undefined,
+      manualDate: isManualDate ? new Date(entryDate + 'T12:00:00').toISOString() : undefined,
     };
 
     if (editEntry) {
@@ -138,6 +181,20 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
           </button>
         </div>
 
+        {/* Date picker */}
+        <div className="entry-date-bar">
+          <CalendarDays size={16} />
+          <input
+            type="date"
+            className="entry-date-input"
+            value={entryDate}
+            onChange={(e) => setEntryDate(e.target.value)}
+          />
+          {entryDate !== new Date().toISOString().slice(0, 10) && (
+            <span className="date-past-badge">Past entry</span>
+          )}
+        </div>
+
         {/* Location */}
         <div className="entry-location-bar">
           {isLocating ? (
@@ -152,12 +209,63 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
               {entryLocation.country && <span className="location-country">{entryLocation.country}</span>}
             </div>
           ) : (
-            <button className="btn-text" onClick={() => getLocation().then((l) => l && setEntryLocation(l))}>
-              <Navigation size={16} />
-              <span>Get Location</span>
-            </button>
+            <div className="location-actions">
+              <button className="btn-text" onClick={() => getLocation().then((l) => l && setEntryLocation(l))}>
+                <Navigation size={16} />
+                <span>Use GPS</span>
+              </button>
+              <span className="location-or">or</span>
+              <button className="btn-text" onClick={() => setShowManualLocation(!showManualLocation)}>
+                <Globe size={16} />
+                <span>Enter Manually</span>
+              </button>
+            </div>
           )}
-          {geoError && <p className="error-text">{geoError}</p>}
+          {geoError && !showManualLocation && <p className="error-text">{geoError}</p>}
+          {showManualLocation && !entryLocation && (
+            <div className="manual-location-fields">
+              <div className="manual-location-row">
+                <input
+                  className="manual-location-input"
+                  type="text"
+                  placeholder="City"
+                  value={manualCity}
+                  onChange={(e) => setManualCity(e.target.value)}
+                />
+                <input
+                  className="manual-location-input"
+                  type="text"
+                  placeholder="Country"
+                  value={manualCountry}
+                  onChange={(e) => setManualCountry(e.target.value)}
+                />
+              </div>
+              <div className="manual-location-row">
+                <input
+                  className="manual-location-input"
+                  type="text"
+                  placeholder="Latitude (optional)"
+                  value={manualLat}
+                  onChange={(e) => setManualLat(e.target.value)}
+                />
+                <input
+                  className="manual-location-input"
+                  type="text"
+                  placeholder="Longitude (optional)"
+                  value={manualLng}
+                  onChange={(e) => setManualLng(e.target.value)}
+                />
+              </div>
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={applyManualLocation}
+                disabled={!manualCity && !manualCountry}
+              >
+                <MapPin size={14} />
+                <span>Set Location</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Title */}
@@ -258,6 +366,21 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
           </div>
         </div>
 
+        {/* News headline */}
+        <div className="entry-news-section">
+          <div className="news-section-label">
+            <Newspaper size={14} />
+            <span>The World That Day</span>
+          </div>
+          <textarea
+            className="entry-news-input"
+            placeholder="What happened in the world today? Headlines, events, context..."
+            value={newsHeadline}
+            onChange={(e) => setNewsHeadline(e.target.value)}
+            rows={3}
+          />
+        </div>
+
         {/* Tags */}
         <input
           className="entry-tags-input"
@@ -272,7 +395,7 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
           <button
             className="btn btn-secondary"
             onClick={() => handleSave(false)}
-            disabled={!entryLocation || !content || isSaving}
+            disabled={(!entryLocation && !manualCity && !manualCountry) || !content || isSaving}
           >
             <Save size={16} />
             <span>Save Draft</span>
@@ -280,7 +403,7 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
           <button
             className="btn btn-primary"
             onClick={() => handleSave(true)}
-            disabled={!entryLocation || !content || isSaving}
+            disabled={(!entryLocation && !manualCity && !manualCountry) || !content || isSaving}
           >
             {isSaving ? <Loader2 size={16} className="spin" /> : <Send size={16} />}
             <span>Publish</span>

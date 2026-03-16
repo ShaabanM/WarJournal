@@ -1,105 +1,191 @@
-import { useState, useEffect } from 'react';
-import { BookOpen, Clock } from 'lucide-react';
-import { useJournalStore, useSortedEntries } from '../store/journalStore';
+import { useEffect, useRef, useCallback } from 'react';
+import { BookOpen, Search, X } from 'lucide-react';
+import { useJournalStore, useSortedEntries, getEntryDisplayDate } from '../store/journalStore';
 import WorldMap from './WorldMap';
-import EntryDetail from './EntryDetail';
+import ScrollyEntry from './ScrollyEntry';
 import Timeline from './Timeline';
-import SearchBar from './SearchBar';
+import { useScrollObserver } from '../hooks/useScrollObserver';
 import { getTotalDistance } from '../utils/geo';
-
-type Panel = 'none' | 'timeline' | 'search';
 
 export default function ReaderView() {
   const {
-    entries, showEntryDetail, selectedEntry, isLoading,
-    loadPublishedEntries, setViewMode, loadSettings
+    entries, isLoading, activeEntryId,
+    loadPublishedEntries, setViewMode, loadSettings,
+    setActiveEntryId, searchQuery, setSearchQuery,
   } = useJournalStore();
   const sorted = useSortedEntries();
-  const [activePanel, setActivePanel] = useState<Panel>('none');
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const entryRefsMap = useRef<Map<string, HTMLElement>>(new Map());
 
   useEffect(() => {
     loadSettings().then(() => loadPublishedEntries());
   }, []);
 
+  // Scroll observer — fires when entry enters center 20% of viewport
+  const handleActiveChange = useCallback(
+    (entryId: string) => {
+      setActiveEntryId(entryId);
+    },
+    [setActiveEntryId]
+  );
+
+  const { registerStep } = useScrollObserver({
+    root: null, // viewport
+    onActiveChange: handleActiveChange,
+  });
+
+  // Wrapper to track refs for programmatic scrolling
+  const registerRef = useCallback(
+    (entryId: string, el: Element | null) => {
+      registerStep(entryId, el);
+      if (el) {
+        entryRefsMap.current.set(entryId, el as HTMLElement);
+      } else {
+        entryRefsMap.current.delete(entryId);
+      }
+    },
+    [registerStep]
+  );
+
+  const scrollToEntry = useCallback((entryId: string) => {
+    const el = entryRefsMap.current.get(entryId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, []);
+
+  // Stats
   const totalDistance = sorted.length > 1
     ? getTotalDistance(sorted.map((e) => e.location))
     : 0;
-
   const countries = new Set(sorted.map((e) => e.location.country).filter(Boolean));
   const latestEntry = sorted[sorted.length - 1];
-
-  const togglePanel = (panel: Panel) => {
-    setActivePanel(activePanel === panel ? 'none' : panel);
-  };
+  const dateRange = sorted.length > 0
+    ? `${new Date(getEntryDisplayDate(sorted[0])).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} — ${new Date(getEntryDisplayDate(sorted[sorted.length - 1])).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+    : '';
 
   return (
-    <div className="reader-view">
-      {/* Map fills the background */}
-      <WorldMap />
-
-      {/* Top bar */}
-      <div className="reader-top-bar">
-        <div className="reader-brand">
-          <div className="brand-icon">
-            <BookOpen size={20} />
+    <div className="scrolly-layout">
+      {/* Fixed sidebar — desktop */}
+      <aside className="scrolly-sidebar">
+        <div className="scrolly-sidebar__brand">
+          <div className="scrolly-sidebar__brand-icon">
+            <BookOpen size={18} />
           </div>
-          <div className="brand-text">
+          <div className="scrolly-sidebar__brand-text">
             <h1>War Journal</h1>
-            <p className="brand-subtitle">A journey through conflict</p>
+            <p>A journey through conflict</p>
           </div>
         </div>
-        <SearchBar />
-      </div>
 
-      {/* Stats strip */}
-      {entries.length > 0 && (
-        <div className="reader-stats">
-          <div className="stat-item">
-            <span className="stat-value">{entries.length}</span>
-            <span className="stat-label">Entries</span>
+        <div className="scrolly-sidebar__search">
+          <div className="scrolly-search-bar">
+            <Search size={14} />
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button className="btn-icon-sm" onClick={() => setSearchQuery('')}>
+                <X size={12} />
+              </button>
+            )}
           </div>
-          <div className="stat-divider" />
-          <div className="stat-item">
-            <span className="stat-value">{Math.round(totalDistance).toLocaleString()}</span>
-            <span className="stat-label">km traveled</span>
+        </div>
+
+        <Timeline
+          entries={sorted}
+          activeEntryId={activeEntryId}
+          onEntryClick={scrollToEntry}
+        />
+
+        <div className="scrolly-sidebar__stats">
+          <div className="sidebar-stat">
+            <span className="sidebar-stat__value">{entries.length}</span>
+            <span className="sidebar-stat__label">entries</span>
           </div>
-          <div className="stat-divider" />
-          <div className="stat-item">
-            <span className="stat-value">{countries.size}</span>
-            <span className="stat-label">Countries</span>
+          <div className="sidebar-stat">
+            <span className="sidebar-stat__value">{Math.round(totalDistance).toLocaleString()}</span>
+            <span className="sidebar-stat__label">km</span>
           </div>
-          {latestEntry && (
-            <>
-              <div className="stat-divider" />
-              <div className="stat-item stat-latest">
-                <span className="stat-value">{latestEntry.location.city || latestEntry.location.country || '?'}</span>
-                <span className="stat-label">Last seen</span>
+          <div className="sidebar-stat">
+            <span className="sidebar-stat__value">{countries.size}</span>
+            <span className="sidebar-stat__label">countries</span>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main scroll area */}
+      <main className="scrolly-main" ref={scrollContainerRef}>
+        {/* Hero section — 100vh */}
+        <section className="scrolly-hero">
+          <div className="scrolly-hero__content">
+            <h1 className="scrolly-hero__title">War Journal</h1>
+            <p className="scrolly-hero__subtitle">
+              A journey through conflict — told one day at a time
+            </p>
+            {sorted.length > 0 && (
+              <div className="scrolly-hero__meta">
+                <span>{dateRange}</span>
+                <span className="scrolly-hero__dot"></span>
+                <span>{entries.length} entries</span>
+                <span className="scrolly-hero__dot"></span>
+                <span>{countries.size} countries</span>
               </div>
-            </>
-          )}
-        </div>
-      )}
+            )}
+            <div className="scrolly-hero__scroll-hint">
+              <span>Scroll to begin</span>
+              <div className="scrolly-hero__arrow" />
+            </div>
+          </div>
+        </section>
 
-      {/* Bottom panel controls */}
-      <div className="reader-bottom-controls">
-        <button
-          className={`panel-toggle ${activePanel === 'timeline' ? 'active' : ''}`}
-          onClick={() => togglePanel('timeline')}
-        >
-          <Clock size={16} />
-          <span>Timeline</span>
-        </button>
-      </div>
+        {/* Sticky map + scrolling entries */}
+        <section className="scrolly-section">
+          <div className="scrolly-map-sticky">
+            <WorldMap />
+          </div>
 
-      {/* Timeline panel */}
-      {activePanel === 'timeline' && (
-        <div className="reader-bottom-panel">
-          <Timeline />
-        </div>
-      )}
+          <div className="scrolly-entries">
+            {sorted.map((entry, index) => (
+              <ScrollyEntry
+                key={entry.id}
+                entry={entry}
+                index={index}
+                isActive={activeEntryId === entry.id}
+                registerRef={registerRef}
+              />
+            ))}
 
-      {/* Entry detail side panel */}
-      {showEntryDetail && selectedEntry && <EntryDetail />}
+            {/* End marker */}
+            {sorted.length > 0 && (
+              <div className="scrolly-end">
+                <div className="scrolly-end__line" />
+                <p className="scrolly-end__text">
+                  {latestEntry?.location.city || latestEntry?.location.country || 'Somewhere'} — the journey continues.
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+      </main>
+
+      {/* Mobile bottom timeline */}
+      <nav className="scrolly-mobile-timeline">
+        {sorted.map((entry) => {
+          const isActive = activeEntryId === entry.id;
+          return (
+            <button
+              key={entry.id}
+              className={`scrolly-mobile-dot ${isActive ? 'active' : ''}`}
+              onClick={() => scrollToEntry(entry.id)}
+              title={entry.title}
+            />
+          );
+        })}
+      </nav>
 
       {/* Loading state */}
       {isLoading && (
