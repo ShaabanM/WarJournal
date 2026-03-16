@@ -13,6 +13,7 @@
       "title": "Fog of War",
       "content": "Today was supposed to be our final day in the hotel. We had just picked up the keys to our new apartment, and the plan was to go on a nice double date with a pair of friends. Afterwards, we were going to buy furniture so we could finally settle down after four months of hotel living.\n\nHowever, the world seemed to have another plan.\n\nWhile we were mid romantic boat ride with our friends, the news started rolling in that the U.S. and Israel had hit Iran, and that Iran was retaliating by firing toward the Gulf. What was supposed to be a romantic boat ride quickly turned into a panicked one—taking phone calls and trying to figure out what this meant for us, but also for our employees on the ground.\n\nOnce the boat docked, we headed back to our hotel room and invited our coworkers over so none of us had to experience the chaos alone. We ordered some shawarma and sat together, hanging out in confusion.\n\nI found myself feeling a mixture of anxiety, excitement but also fun. I would be lying if I said the novelty seeker in me was not a bit fascinated but ultimately I was concerned for what this means. I hope this will be a 48 hour ordeal that does not really impact Dubai.",
       "mood": "Anxious but joyful",
+      "moodColor": "#d4a574",
       "photos": [
         {
           "id": "8c212da0-5bdb-43e2-afc4-82665983bc9a",
@@ -24,7 +25,7 @@
       "tags": [],
       "isPublished": true,
       "createdAt": "2026-03-16T12:51:13.835Z",
-      "updatedAt": "2026-03-16T12:52:24.484Z",
+      "updatedAt": "2026-03-16T13:16:13.698Z",
       "newsHeadline": "US-Israeli strikes kill Khamenei and Iranian retaliation shakes Gulf - As it happened",
       "manualDate": "2026-02-28T11:00:00.000Z"
     },
@@ -58,6 +59,6 @@
       "manualDate": "2026-03-01T11:00:00.000Z"
     }
   ],
-  "exportedAt": "2026-03-16T13:16:03.328Z",
+  "exportedAt": "2026-03-16T13:16:13.698Z",
   "totalEntries": 2
 }
