@@ -264,14 +264,29 @@ export async function fetchPublishedEntries(
   const cacheBust = `_t=${Date.now()}`;
 
   try {
-    // Try raw GitHub content first (always up-to-date, no build/cache lag)
+    // 1) GitHub API (Contents) — always immediately consistent, no CDN lag.
+    //    Works without auth for public repos (60 req/hr rate limit).
+    try {
+      const apiRes = await fetch(
+        `https://api.github.com/repos/${owner}/${repo}/contents/data/entries.json`,
+        { cache: 'no-store', headers: { Accept: 'application/vnd.github.v3.raw' } }
+      );
+      if (apiRes.ok) {
+        const data = await apiRes.json();
+        return data.entries || [];
+      }
+    } catch {
+      // API failed (rate limit or network) — fall through to CDN
+    }
+
+    // 2) Raw GitHub CDN — usually fast, but can lag ~5 min after commits
     let res = await fetch(
       `https://raw.githubusercontent.com/${owner}/${repo}/main/data/entries.json?${cacheBust}`,
       { cache: 'no-store' }
     );
 
     if (!res.ok) {
-      // Fallback to GitHub Pages static file
+      // 3) GitHub Pages static file — updated after each deploy
       const pagesUrl = `https://${owner}.github.io/${repo}/data/entries.json?${cacheBust}`;
       res = await fetch(pagesUrl, { cache: 'no-store' });
     }

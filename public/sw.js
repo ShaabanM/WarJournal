@@ -1,4 +1,4 @@
-const CACHE_NAME = 'warjournal-v1';
+const CACHE_NAME = 'warjournal-v2';
 const STATIC_ASSETS = [
   '/WarJournal/',
   '/WarJournal/index.html',
