@@ -6,6 +6,30 @@ import { getMoodColor } from '../utils/sentiment';
 import type { JournalEntry } from '../types';
 import { format } from 'date-fns';
 
+// Medieval parchment map — hand-painted Stamen Watercolor raster tiles
+const MEDIEVAL_STYLE = {
+  version: 8 as const,
+  sources: {
+    'stamen-watercolor': {
+      type: 'raster' as const,
+      tiles: [
+        'https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg',
+      ],
+      tileSize: 256,
+      maxzoom: 16,
+      attribution:
+        '&copy; <a href="https://stamen.com">Stamen Design</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    },
+  },
+  layers: [
+    {
+      id: 'stamen-watercolor-layer',
+      type: 'raster' as const,
+      source: 'stamen-watercolor',
+    },
+  ],
+};
+
 export default function WorldMap() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -22,14 +46,13 @@ export default function WorldMap() {
 
     const map = new maplibregl.Map({
       container: mapContainer.current,
-      style: isDark
-        ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
-        : 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
+      style: MEDIEVAL_STYLE,
       center: mapCenter,
       zoom: mapZoom,
       pitch: 35,
       bearing: -10,
       maxPitch: 60,
+      maxZoom: 16,
     });
 
     map.addControl(new maplibregl.NavigationControl({ showCompass: true }), 'bottom-right');
@@ -59,22 +82,10 @@ export default function WorldMap() {
     return () => ro.disconnect();
   }, [mapLoaded]);
 
-  // Switch map tiles when theme changes
+  // Theme changes — same watercolor tiles for both modes, CSS handles dark/light
   useEffect(() => {
     if (!mapRef.current || !mapLoaded) return;
-    const map = mapRef.current;
-    const newStyle = isDark
-      ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
-      : 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json';
-
-    map.setStyle(newStyle);
-    // After style loads, the journey line + markers effect will re-run
-    // because setMapLoaded toggles
-    map.once('styledata', () => {
-      // Force re-render of layers by briefly toggling mapLoaded
-      setMapLoaded(false);
-      requestAnimationFrame(() => setMapLoaded(true));
-    });
+    mapRef.current.resize();
   }, [isDark]);
 
   // Fly to center when it changes (user-initiated, e.g. flyToEntry in author view)
@@ -141,30 +152,31 @@ export default function WorldMap() {
       },
     });
 
-    const lineColor = isDark ? '#d4a574' : '#8b6f47';
+    // Medieval ink — golden on dark parchment, dark brown on light
+    const lineColor = isDark ? '#c9a96e' : '#3d2b1f';
 
-    // Wide outer glow
+    // Wide outer glow — ink bleed on parchment
     map.addLayer({
       id: 'journey-line-glow',
       type: 'line',
       source: 'journey',
       paint: {
         'line-color': lineColor,
-        'line-width': 10,
-        'line-opacity': 0.15,
-        'line-blur': 8,
+        'line-width': 14,
+        'line-opacity': 0.25,
+        'line-blur': 10,
       },
     });
 
-    // Main line — solid with gradient feel
+    // Main line — inked path on parchment
     map.addLayer({
       id: 'journey-line',
       type: 'line',
       source: 'journey',
       paint: {
         'line-color': lineColor,
-        'line-width': 3,
-        'line-opacity': 0.9,
+        'line-width': 3.5,
+        'line-opacity': 0.95,
       },
     });
 

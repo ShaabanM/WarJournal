@@ -89,8 +89,18 @@
   --shadow-glow: 0 0 30px rgba(139, 111, 71, 0.08);
 }
 
+/* Light mode: warm parchment treatment for watercolor tiles */
+[data-theme="light"] .scrolly-map-sticky .world-map {
+  filter: sepia(0.3) saturate(0.5) contrast(1.1) brightness(1.02) hue-rotate(-8deg);
+}
+
+[data-theme="light"] .scrolly-map-sticky::before {
+  background: rgba(139, 111, 71, 0.06);
+  box-shadow: inset 0 0 120px 50px rgba(101, 67, 33, 0.3);
+}
+
 [data-theme="light"] .marker-dot {
-  border-color: rgba(62, 59, 55, 0.6);
+  border-color: rgba(80, 60, 30, 0.7);
 }
 
 /* ===========================
@@ -508,18 +518,21 @@ body {
   position: absolute;
   inset: 0;
   z-index: 0;
-  filter: sepia(0.15) hue-rotate(-5deg) saturate(0.8) brightness(0.95);
+  /* Dark mode: candlelit parchment — darken watercolor tiles dramatically */
+  filter: brightness(0.32) sepia(0.5) saturate(0.7) contrast(1.35) hue-rotate(-10deg);
 }
 
-/* Warm tint overlay to match the app's amber/sepia palette */
+/* Parchment overlay + medieval vignette (dark edges) */
 .scrolly-map-sticky::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(26, 25, 23, 0.25);
+  background: rgba(40, 30, 15, 0.15);
   mix-blend-mode: multiply;
   pointer-events: none;
   z-index: 1;
+  /* Medieval vignette — darkened edges like aged parchment */
+  box-shadow: inset 0 0 150px 60px rgba(20, 15, 5, 0.65);
 }
 
 /* Subtle left-edge shadow on map for depth separation */
@@ -790,7 +803,7 @@ body {
   height: 14px;
   border-radius: 50%;
   background: var(--marker-color, var(--accent));
-  border: 2.5px solid rgba(255, 255, 255, 0.95);
+  border: 2.5px solid rgba(230, 215, 180, 0.9);
   box-shadow: 0 0 12px var(--marker-color, var(--accent)),
               0 0 20px rgba(0, 0, 0, 0.5);
   transition: all 0.3s var(--ease);
@@ -837,14 +850,14 @@ body {
 }
 
 .marker-date {
+  font-family: var(--font-display);
   font-size: 10px;
   font-weight: 600;
   color: var(--text-primary);
   background: var(--bg-glass);
   padding: 2px 7px;
   border-radius: 4px;
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-accent);
   white-space: nowrap;
 }
 
