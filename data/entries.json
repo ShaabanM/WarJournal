@@ -41,6 +41,7 @@
       "title": "War or Not I am Moving In",
       "content": "I already paid a whole years rent up front because that is basically how you do it in Dubai... So yes maybe my furniture shopping got derailed but I wont let this war stop me from moving into my apartment.",
       "mood": "Annoyed",
+      "moodColor": "#d97c7c",
       "photos": [
         {
           "id": "8f134423-2004-4a6f-b28d-482ff9d1770c",
@@ -52,11 +53,11 @@
       "tags": [],
       "isPublished": true,
       "createdAt": "2026-03-16T12:55:57.245Z",
-      "updatedAt": "2026-03-16T12:59:07.073Z",
+      "updatedAt": "2026-03-16T13:16:03.327Z",
       "newsHeadline": "Missile debris, panic buying jolt Dubai's aura of calm after Iran attack",
       "manualDate": "2026-03-01T11:00:00.000Z"
     }
   ],
-  "exportedAt": "2026-03-16T12:59:07.074Z",
+  "exportedAt": "2026-03-16T13:16:03.328Z",
   "totalEntries": 2
 }
