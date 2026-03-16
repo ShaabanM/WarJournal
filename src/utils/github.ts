@@ -2,8 +2,8 @@ import type { JournalEntry } from '../types';
 
 const GITHUB_API = 'https://api.github.com';
 
-// Mutex to prevent concurrent publishes (which cause 409 SHA conflicts)
-let publishInProgress: Promise<boolean> | null = null;
+// Serialise all publish calls so only one runs at a time
+let publishQueue: Promise<boolean> = Promise.resolve(true);
 
 interface GitHubConfig {
   token: string;
@@ -51,19 +51,17 @@ function stripPhotosForPublish(entries: JournalEntry[]): JournalEntry[] {
   }));
 }
 
-async function doPublish(
+/**
+ * Low-level PUT to GitHub Contents API with automatic 409 retry.
+ * On 409 (SHA conflict), re-fetches SHA and retries up to `maxRetries` times.
+ */
+async function putFileWithRetry(
   config: GitHubConfig,
-  entries: JournalEntry[]
+  path: string,
+  content: string,
+  maxRetries = 3
 ): Promise<boolean> {
-  try {
-    const data = {
-      entries: stripPhotosForPublish(entries),
-      exportedAt: new Date().toISOString(),
-      totalEntries: entries.length,
-    };
-
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
-    const path = 'data/entries.json';
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
     const sha = await getFileSha(config, path);
 
     const body: Record<string, unknown> = {
@@ -71,45 +69,65 @@ async function doPublish(
       content,
       branch: 'main',
     };
-
-    if (sha) {
-      body.sha = sha;
-    }
+    if (sha) body.sha = sha;
 
     const res = await githubFetch(config, `/contents/${path}`, {
       method: 'PUT',
       body: JSON.stringify(body),
     });
 
-    return res.ok;
-  } catch (err) {
-    console.error('Failed to publish entries:', err);
+    if (res.ok) return true;
+
+    // 409 = SHA conflict (another device published in between)
+    if (res.status === 409 && attempt < maxRetries) {
+      console.warn(`Publish 409 conflict (attempt ${attempt + 1}/${maxRetries + 1}), retrying...`);
+      continue;
+    }
+
+    console.error(`Publish failed: ${res.status} ${res.statusText}`);
     return false;
   }
+  return false;
 }
 
 /**
- * Publish entries to GitHub with a mutex to prevent concurrent writes.
- * If a publish is already in progress, waits for it to complete then retries
- * with fresh data to avoid 409 SHA conflicts.
+ * Publish a set of entries to GitHub.
+ *
+ * All calls are serialised (queued) so only one PUT runs at a time.
+ * Each call builds the content fresh from whatever entries are passed in,
+ * and the PUT itself retries on 409 SHA conflicts.
  */
 export async function publishEntries(
   config: GitHubConfig,
   entries: JournalEntry[]
 ): Promise<boolean> {
-  // If a publish is already in progress, wait for it then retry with latest data
-  if (publishInProgress) {
-    await publishInProgress;
-  }
+  // Chain onto the queue so concurrent calls run sequentially
+  const job = publishQueue.then(async () => {
+    try {
+      const data = {
+        entries: stripPhotosForPublish(entries),
+        exportedAt: new Date().toISOString(),
+        totalEntries: entries.length,
+      };
 
-  const promise = doPublish(config, entries);
-  publishInProgress = promise;
+      const encoder = new TextEncoder();
+      const bytes = encoder.encode(JSON.stringify(data, null, 2));
+      // Convert to base64 without deprecated btoa/unescape
+      let binary = '';
+      for (const byte of bytes) {
+        binary += String.fromCharCode(byte);
+      }
+      const content = btoa(binary);
 
-  try {
-    return await promise;
-  } finally {
-    publishInProgress = null;
-  }
+      return await putFileWithRetry(config, 'data/entries.json', content);
+    } catch (err) {
+      console.error('Failed to publish entries:', err);
+      return false;
+    }
+  });
+
+  publishQueue = job.catch(() => false); // keep the chain alive even on error
+  return job;
 }
 
 /**

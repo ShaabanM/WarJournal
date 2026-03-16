@@ -44,6 +44,7 @@ interface JournalState {
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
   dismissToast: (id: number) => void;
   publish: () => Promise<boolean>;
+  syncEntries: () => Promise<void>;
   flyToEntry: (entry: JournalEntry) => void;
 }
 
@@ -195,27 +196,58 @@ export const useJournalStore = create<JournalState>((set, get) => ({
     const owner = settings.githubOwner;
     const repo = settings.githubRepo;
 
-    // 1. Read fresh local entries from IndexedDB
-    const allEntries = await db.getAllEntries();
-    const localPublished = allEntries.filter((e) => e.isPublished);
+    // 1. Read ALL local entries from IndexedDB (both published and drafts)
+    const allLocalEntries = await db.getAllEntries();
+    const localById = new Map<string, JournalEntry>();
+    for (const e of allLocalEntries) {
+      localById.set(e.id, e);
+    }
 
     // 2. Fetch existing remote entries so we MERGE instead of overwrite
-    //    (prevents Device A from wiping Device B's entries)
     let remoteEntries: JournalEntry[] = [];
     try {
       remoteEntries = await fetchPublishedEntries(owner, repo);
     } catch {
-      // If remote fetch fails, proceed with local-only (better than failing entirely)
+      // If remote fetch fails, proceed with local-only
     }
 
-    // 3. Merge: start with remote, then overlay local (local wins for same ID)
+    // 3. Smart merge:
+    //    - For entries that exist both locally and remotely: keep the one
+    //      with the newer updatedAt. If local is unpublished (draft), remove it.
+    //    - For entries only on remote: keep them (from other devices).
+    //    - For entries only local and published: add them.
+    //    - For entries only local and draft: skip (don't publish).
+    //    - For entries deleted locally (exist remote but not local): remove them.
     const mergedMap = new Map<string, JournalEntry>();
-    for (const entry of remoteEntries) {
-      mergedMap.set(entry.id, entry);
+
+    // Start with remote entries
+    for (const remote of remoteEntries) {
+      const local = localById.get(remote.id);
+
+      if (!local) {
+        // Entry exists remotely but NOT locally — could be from another device,
+        // or could have been deleted on this device. We keep it (safe default:
+        // another device's entries should not be removed by a device that
+        // never had them). Deletion requires the entry to have existed locally.
+        mergedMap.set(remote.id, remote);
+      } else if (!local.isPublished) {
+        // Entry exists locally as draft (unpublished) — author wants it removed
+        // from the public feed. Don't add it to merged.
+      } else {
+        // Both exist and local is published — keep the newer one
+        const localTime = new Date(local.updatedAt).getTime();
+        const remoteTime = new Date(remote.updatedAt).getTime();
+        mergedMap.set(remote.id, localTime >= remoteTime ? local : remote);
+      }
     }
-    for (const entry of localPublished) {
-      mergedMap.set(entry.id, entry); // local overwrites remote for same ID
+
+    // Add local-only published entries (new entries from this device)
+    for (const local of allLocalEntries) {
+      if (local.isPublished && !mergedMap.has(local.id)) {
+        mergedMap.set(local.id, local);
+      }
     }
+
     const merged = Array.from(mergedMap.values());
 
     const success = await publishEntries(
@@ -224,6 +256,69 @@ export const useJournalStore = create<JournalState>((set, get) => ({
     );
     set({ isPublishing: false });
     return success;
+  },
+
+  syncEntries: async () => {
+    const { settings, showToast: toast } = get();
+    const owner = settings.githubOwner;
+    const repo = settings.githubRepo;
+
+    if (!owner || !repo) {
+      const derived = deriveGitHubInfo();
+      if (!derived) {
+        toast('Cannot sync — GitHub not configured', 'error');
+        return;
+      }
+    }
+
+    set({ isLoading: true });
+
+    try {
+      const remoteEntries = await fetchPublishedEntries(
+        owner || deriveGitHubInfo()!.owner,
+        repo || deriveGitHubInfo()!.repo
+      );
+
+      if (remoteEntries.length === 0) {
+        toast('No remote entries found', 'info');
+        set({ isLoading: false });
+        return;
+      }
+
+      // Merge remote entries into local IndexedDB
+      const localEntries = await db.getAllEntries();
+      const localById = new Map(localEntries.map((e) => [e.id, e]));
+      let added = 0;
+      let updated = 0;
+
+      for (const remote of remoteEntries) {
+        const local = localById.get(remote.id);
+        if (!local) {
+          // New entry from another device — import it
+          await db.saveEntry(remote);
+          added++;
+        } else {
+          // Exists locally — update if remote is newer
+          const localTime = new Date(local.updatedAt).getTime();
+          const remoteTime = new Date(remote.updatedAt).getTime();
+          if (remoteTime > localTime) {
+            // Preserve local photo data (remote has stripped photos)
+            const merged = { ...remote, photos: local.photos };
+            await db.saveEntry(merged);
+            updated++;
+          }
+        }
+      }
+
+      // Refresh the entries list
+      const entries = await db.getAllEntries();
+      set({ entries, isLoading: false });
+      toast(`Synced: ${added} new, ${updated} updated from remote`, 'success');
+    } catch (err) {
+      console.error('Sync failed:', err);
+      toast('Sync failed — check your connection', 'error');
+      set({ isLoading: false });
+    }
   },
 
   flyToEntry: (entry) => {

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import {
   Plus, Settings, Upload, Loader2, BookOpen, MapPin,
-  Calendar, Eye, Pencil, Trash2, Globe, AlertTriangle, Sun, Moon
+  Calendar, Eye, Pencil, Trash2, Globe, AlertTriangle, Sun, Moon,
+  RefreshCw
 } from 'lucide-react';
-import { useJournalStore } from '../store/journalStore';
+import { useJournalStore, getEntryDisplayDate } from '../store/journalStore';
 import { format } from 'date-fns';
 import NewEntry from './NewEntry';
 import SettingsPanel from './Settings';
@@ -11,22 +12,36 @@ import type { JournalEntry } from '../types';
 
 export default function AuthorView() {
   const {
-    entries, isPublishing, loadEntries, publish, deleteEntry, flyToEntry,
-    setViewMode, settings, setTheme
+    entries, isPublishing, isLoading, loadEntries, publish, deleteEntry, flyToEntry,
+    setViewMode, settings, setTheme, syncEntries
   } = useJournalStore();
   const [showNewEntry, setShowNewEntry] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [editingEntry, setEditingEntry] = useState<JournalEntry | undefined>();
   const [publishResult, setPublishResult] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
     loadEntries();
   }, [loadEntries]);
 
+  // Sort entries by display date (newest first)
+  const sortedEntries = [...entries].sort(
+    (a, b) =>
+      new Date(getEntryDisplayDate(b)).getTime() -
+      new Date(getEntryDisplayDate(a)).getTime()
+  );
+
   const handlePublish = async () => {
     const success = await publish();
     setPublishResult(success ? 'Published successfully!' : 'Failed to publish. Check settings.');
     setTimeout(() => setPublishResult(null), 3000);
+  };
+
+  const handleSync = async () => {
+    setIsSyncing(true);
+    await syncEntries();
+    setIsSyncing(false);
   };
 
   const handleEdit = (entry: JournalEntry) => {
@@ -92,6 +107,15 @@ export default function AuthorView() {
         </button>
         <button
           className="btn btn-secondary"
+          onClick={handleSync}
+          disabled={isSyncing || isLoading}
+          title="Pull entries from other devices"
+        >
+          {isSyncing ? <Loader2 size={18} className="spin" /> : <RefreshCw size={18} />}
+          <span>Sync</span>
+        </button>
+        <button
+          className="btn btn-secondary"
           onClick={handlePublish}
           disabled={isPublishing || publishedCount === 0}
         >
@@ -127,12 +151,12 @@ export default function AuthorView() {
             <p>Tap "New Entry" to start documenting your journey</p>
           </div>
         ) : (
-          entries.map((entry) => (
+          sortedEntries.map((entry) => (
             <div key={entry.id} className="entry-card" onClick={() => handleViewOnMap(entry)}>
               <div className="entry-card-header">
                 <div className="entry-card-date">
                   <Calendar size={14} />
-                  <span>{format(new Date(entry.timestamp), 'EEEE, MMMM d, yyyy')}</span>
+                  <span>{format(new Date(getEntryDisplayDate(entry)), 'EEEE, MMMM d, yyyy')}</span>
                 </div>
                 <div className={`entry-status ${entry.isPublished ? 'published' : 'draft'}`}>
                   {entry.isPublished ? 'Published' : 'Draft'}
@@ -151,13 +175,13 @@ export default function AuthorView() {
                 {entry.content.slice(0, 150)}{entry.content.length > 150 ? '...' : ''}
               </p>
 
-              {entry.photos.length > 0 && (
+              {entry.photos.some((p) => p.dataUrl) && (
                 <div className="entry-card-photos">
-                  {entry.photos.slice(0, 3).map((p) => (
+                  {entry.photos.filter((p) => p.dataUrl).slice(0, 3).map((p) => (
                     <img key={p.id} src={p.dataUrl} alt="" className="entry-card-photo-thumb" />
                   ))}
-                  {entry.photos.length > 3 && (
-                    <div className="entry-card-photo-more">+{entry.photos.length - 3}</div>
+                  {entry.photos.filter((p) => p.dataUrl).length > 3 && (
+                    <div className="entry-card-photo-more">+{entry.photos.filter((p) => p.dataUrl).length - 3}</div>
                   )}
                 </div>
               )}
