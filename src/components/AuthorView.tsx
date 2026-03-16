@@ -175,13 +175,13 @@ export default function AuthorView() {
                 {entry.content.slice(0, 150)}{entry.content.length > 150 ? '...' : ''}
               </p>
 
-              {entry.photos.some((p) => p.dataUrl) && (
+              {entry.photos.some((p) => p.dataUrl || p.remoteUrl) && (
                 <div className="entry-card-photos">
-                  {entry.photos.filter((p) => p.dataUrl).slice(0, 3).map((p) => (
-                    <img key={p.id} src={p.dataUrl} alt="" className="entry-card-photo-thumb" />
+                  {entry.photos.filter((p) => p.dataUrl || p.remoteUrl).slice(0, 3).map((p) => (
+                    <img key={p.id} src={p.dataUrl || p.remoteUrl} alt="" className="entry-card-photo-thumb" />
                   ))}
-                  {entry.photos.filter((p) => p.dataUrl).length > 3 && (
-                    <div className="entry-card-photo-more">+{entry.photos.filter((p) => p.dataUrl).length - 3}</div>
+                  {entry.photos.filter((p) => p.dataUrl || p.remoteUrl).length > 3 && (
+                    <div className="entry-card-photo-more">+{entry.photos.filter((p) => p.dataUrl || p.remoteUrl).length - 3}</div>
                   )}
                 </div>
               )}

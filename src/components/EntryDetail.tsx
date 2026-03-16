@@ -34,34 +34,40 @@ export default function EntryDetail() {
       </div>
 
       {/* Photos */}
-      {selectedEntry.photos.length > 0 && (
-        <div className="entry-detail-photos">
-          <img
-            src={selectedEntry.photos[photoIndex]?.dataUrl}
-            alt={selectedEntry.photos[photoIndex]?.caption || 'Journal photo'}
-            className="entry-detail-photo"
-          />
-          {selectedEntry.photos.length > 1 && (
-            <div className="photo-nav">
-              <button
-                className="btn-icon photo-nav-btn"
-                onClick={() => setPhotoIndex(Math.max(0, photoIndex - 1))}
-                disabled={photoIndex === 0}
-              >
-                <ChevronLeft size={16} />
-              </button>
-              <span className="photo-counter">{photoIndex + 1} / {selectedEntry.photos.length}</span>
-              <button
-                className="btn-icon photo-nav-btn"
-                onClick={() => setPhotoIndex(Math.min(selectedEntry.photos.length - 1, photoIndex + 1))}
-                disabled={photoIndex === selectedEntry.photos.length - 1}
-              >
-                <ChevronRight size={16} />
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+      {selectedEntry.photos.some((p) => p.dataUrl || p.remoteUrl) && (() => {
+        const visiblePhotos = selectedEntry.photos.filter((p) => p.dataUrl || p.remoteUrl);
+        const photo = visiblePhotos[photoIndex];
+        return (
+          <div className="entry-detail-photos">
+            {photo && (
+              <img
+                src={photo.dataUrl || photo.remoteUrl}
+                alt={photo.caption || 'Journal photo'}
+                className="entry-detail-photo"
+              />
+            )}
+            {visiblePhotos.length > 1 && (
+              <div className="photo-nav">
+                <button
+                  className="btn-icon photo-nav-btn"
+                  onClick={() => setPhotoIndex(Math.max(0, photoIndex - 1))}
+                  disabled={photoIndex === 0}
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <span className="photo-counter">{photoIndex + 1} / {visiblePhotos.length}</span>
+                <button
+                  className="btn-icon photo-nav-btn"
+                  onClick={() => setPhotoIndex(Math.min(visiblePhotos.length - 1, photoIndex + 1))}
+                  disabled={photoIndex === visiblePhotos.length - 1}
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       <div className="entry-detail-body">
         {/* Mood badge */}

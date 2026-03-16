@@ -68,12 +68,12 @@ export default function ScrollyEntry({ entry, isActive, index, registerRef }: Sc
       </div>
 
       {/* Photos */}
-      {entry.photos.length > 0 && (
+      {entry.photos.some((p) => p.dataUrl || p.remoteUrl) && (
         <div className="scrolly-entry__photos">
-          {entry.photos.map((photo) => (
+          {entry.photos.filter((p) => p.dataUrl || p.remoteUrl).map((photo) => (
             <div key={photo.id} className="scrolly-entry__photo-wrap">
               <img
-                src={photo.dataUrl}
+                src={photo.dataUrl || photo.remoteUrl}
                 alt={photo.caption || 'Journal photo'}
                 className="scrolly-entry__photo"
                 loading="lazy"

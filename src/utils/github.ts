@@ -1,9 +1,10 @@
-import type { JournalEntry } from '../types';
+import type { JournalEntry, EntryPhoto } from '../types';
 
 const GITHUB_API = 'https://api.github.com';
 
 // Serialise all publish calls so only one runs at a time
-let publishQueue: Promise<boolean> = Promise.resolve(true);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let publishQueue: Promise<any> = Promise.resolve();
 
 interface GitHubConfig {
   token: string;
@@ -37,9 +38,91 @@ async function getFileSha(config: GitHubConfig, path: string): Promise<string | 
 }
 
 /**
- * Strip large photo dataUrls from entries before publishing to GitHub.
- * Keeps photo metadata (id, caption, timestamp) but removes the actual base64 image data
- * to prevent the entries.json file from growing unbounded.
+ * Upload a single photo to the GitHub repo as a separate file.
+ * Returns the raw.githubusercontent.com URL on success, or null on failure.
+ */
+async function uploadPhoto(
+  config: GitHubConfig,
+  entryId: string,
+  photo: EntryPhoto
+): Promise<string | null> {
+  try {
+    // Extract raw base64 from data URL (strip "data:image/jpeg;base64," prefix)
+    const base64Match = photo.dataUrl.match(/^data:[^;]+;base64,(.+)$/);
+    if (!base64Match) return null;
+    const base64Data = base64Match[1];
+
+    const path = `data/photos/${entryId}/${photo.id}.jpg`;
+    const sha = await getFileSha(config, path);
+
+    // Skip upload if file already exists (same SHA means same content)
+    if (sha) {
+      return `https://raw.githubusercontent.com/${config.owner}/${config.repo}/main/${path}`;
+    }
+
+    const body: Record<string, unknown> = {
+      message: `Upload photo ${photo.id}`,
+      content: base64Data,
+      branch: 'main',
+    };
+
+    const res = await githubFetch(config, `/contents/${path}`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    });
+
+    if (res.ok) {
+      return `https://raw.githubusercontent.com/${config.owner}/${config.repo}/main/${path}`;
+    }
+
+    console.warn(`Failed to upload photo ${photo.id}: ${res.status}`);
+    return null;
+  } catch (err) {
+    console.warn(`Failed to upload photo ${photo.id}:`, err);
+    return null;
+  }
+}
+
+/**
+ * Upload all photos for a set of entries that don't have remoteUrl yet.
+ * Returns entries with remoteUrl populated on successfully uploaded photos.
+ */
+async function uploadEntryPhotos(
+  config: GitHubConfig,
+  entries: JournalEntry[]
+): Promise<JournalEntry[]> {
+  const result: JournalEntry[] = [];
+
+  for (const entry of entries) {
+    const updatedPhotos: EntryPhoto[] = [];
+
+    for (const photo of entry.photos) {
+      // Skip if already has a remote URL or no local data to upload
+      if (photo.remoteUrl) {
+        updatedPhotos.push(photo);
+        continue;
+      }
+      if (!photo.dataUrl) {
+        updatedPhotos.push(photo);
+        continue;
+      }
+
+      // Upload and get remote URL
+      const remoteUrl = await uploadPhoto(config, entry.id, photo);
+      updatedPhotos.push({
+        ...photo,
+        remoteUrl: remoteUrl || undefined,
+      });
+    }
+
+    result.push({ ...entry, photos: updatedPhotos });
+  }
+
+  return result;
+}
+
+/**
+ * Prepare entries for publishing: strip base64 dataUrl but keep remoteUrl.
  */
 function stripPhotosForPublish(entries: JournalEntry[]): JournalEntry[] {
   return entries.map((entry) => ({
@@ -47,6 +130,7 @@ function stripPhotosForPublish(entries: JournalEntry[]): JournalEntry[] {
     photos: entry.photos.map((p) => ({
       ...p,
       dataUrl: '', // Remove base64 data — photos live only in local IndexedDB
+      // remoteUrl is preserved so readers can fetch photos from GitHub
     })),
   }));
 }
@@ -97,36 +181,49 @@ async function putFileWithRetry(
  * Each call builds the content fresh from whatever entries are passed in,
  * and the PUT itself retries on 409 SHA conflicts.
  */
+/**
+ * Publish a set of entries to GitHub.
+ *
+ * 1. Uploads any photos that don't have a remoteUrl yet (as separate files)
+ * 2. Strips base64 dataUrl from entries (keeps remoteUrl for readers)
+ * 3. Pushes entries.json with retry on 409
+ *
+ * Returns { success, entries } — entries have updated remoteUrls for local DB caching.
+ */
 export async function publishEntries(
   config: GitHubConfig,
   entries: JournalEntry[]
-): Promise<boolean> {
+): Promise<{ success: boolean; entries: JournalEntry[] }> {
   // Chain onto the queue so concurrent calls run sequentially
   const job = publishQueue.then(async () => {
     try {
+      // 1. Upload photos that need remote URLs
+      const entriesWithPhotos = await uploadEntryPhotos(config, entries);
+
+      // 2. Build entries.json (strip base64, keep remoteUrl)
       const data = {
-        entries: stripPhotosForPublish(entries),
+        entries: stripPhotosForPublish(entriesWithPhotos),
         exportedAt: new Date().toISOString(),
-        totalEntries: entries.length,
+        totalEntries: entriesWithPhotos.length,
       };
 
       const encoder = new TextEncoder();
       const bytes = encoder.encode(JSON.stringify(data, null, 2));
-      // Convert to base64 without deprecated btoa/unescape
       let binary = '';
       for (const byte of bytes) {
         binary += String.fromCharCode(byte);
       }
       const content = btoa(binary);
 
-      return await putFileWithRetry(config, 'data/entries.json', content);
+      const success = await putFileWithRetry(config, 'data/entries.json', content);
+      return { success, entries: entriesWithPhotos };
     } catch (err) {
       console.error('Failed to publish entries:', err);
-      return false;
+      return { success: false, entries };
     }
   });
 
-  publishQueue = job.catch(() => false); // keep the chain alive even on error
+  publishQueue = job.catch(() => ({ success: false, entries })) as Promise<any>;
   return job;
 }
 

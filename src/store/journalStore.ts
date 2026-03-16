@@ -250,12 +250,31 @@ export const useJournalStore = create<JournalState>((set, get) => ({
 
     const merged = Array.from(mergedMap.values());
 
-    const success = await publishEntries(
+    const result = await publishEntries(
       { token: settings.githubToken, owner, repo },
       merged
     );
+
+    // Save remoteUrls back to local IndexedDB so we don't re-upload next time
+    if (result.success) {
+      for (const entry of result.entries) {
+        const localEntry = localById.get(entry.id);
+        if (localEntry) {
+          // Merge remoteUrls into local entry (preserve local dataUrl)
+          const updatedPhotos = localEntry.photos.map((lp) => {
+            const published = entry.photos.find((pp) => pp.id === lp.id);
+            return published?.remoteUrl ? { ...lp, remoteUrl: published.remoteUrl } : lp;
+          });
+          await db.saveEntry({ ...localEntry, photos: updatedPhotos });
+        }
+      }
+      // Refresh entries in store
+      const entries = await db.getAllEntries();
+      set({ entries });
+    }
+
     set({ isPublishing: false });
-    return success;
+    return result.success;
   },
 
   syncEntries: async () => {

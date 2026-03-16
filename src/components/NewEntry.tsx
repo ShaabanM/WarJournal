@@ -314,7 +314,7 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
           <div className="photos-grid">
             {photos.map((photo) => (
               <div key={photo.id} className="photo-thumb">
-                <img src={photo.dataUrl} alt={photo.caption || 'Photo'} />
+                <img src={photo.dataUrl || photo.remoteUrl} alt={photo.caption || 'Photo'} />
                 <button className="photo-remove" onClick={() => removePhoto(photo.id)}>
                   <X size={14} />
                 </button>

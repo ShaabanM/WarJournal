@@ -24,7 +24,8 @@ export interface JournalEntry {
 
 export interface EntryPhoto {
   id: string;
-  dataUrl: string; // base64 compressed
+  dataUrl: string; // base64 compressed (local only)
+  remoteUrl?: string; // GitHub raw URL (for readers without local data)
   caption?: string;
   timestamp: string;
 }
