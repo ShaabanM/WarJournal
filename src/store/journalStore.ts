@@ -191,17 +191,36 @@ export const useJournalStore = create<JournalState>((set, get) => ({
       return false;
     }
     set({ isPublishing: true });
-    // Always read fresh from IndexedDB to avoid race conditions
-    // (handleSave calls addEntry then publish fire-and-forget)
+
+    const owner = settings.githubOwner;
+    const repo = settings.githubRepo;
+
+    // 1. Read fresh local entries from IndexedDB
     const allEntries = await db.getAllEntries();
-    const published = allEntries.filter((e) => e.isPublished);
+    const localPublished = allEntries.filter((e) => e.isPublished);
+
+    // 2. Fetch existing remote entries so we MERGE instead of overwrite
+    //    (prevents Device A from wiping Device B's entries)
+    let remoteEntries: JournalEntry[] = [];
+    try {
+      remoteEntries = await fetchPublishedEntries(owner, repo);
+    } catch {
+      // If remote fetch fails, proceed with local-only (better than failing entirely)
+    }
+
+    // 3. Merge: start with remote, then overlay local (local wins for same ID)
+    const mergedMap = new Map<string, JournalEntry>();
+    for (const entry of remoteEntries) {
+      mergedMap.set(entry.id, entry);
+    }
+    for (const entry of localPublished) {
+      mergedMap.set(entry.id, entry); // local overwrites remote for same ID
+    }
+    const merged = Array.from(mergedMap.values());
+
     const success = await publishEntries(
-      {
-        token: settings.githubToken,
-        owner: settings.githubOwner,
-        repo: settings.githubRepo,
-      },
-      published
+      { token: settings.githubToken, owner, repo },
+      merged
     );
     set({ isPublishing: false });
     return success;
