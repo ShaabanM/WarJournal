@@ -89,14 +89,13 @@
   --shadow-glow: 0 0 30px rgba(139, 111, 71, 0.08);
 }
 
-/* Light mode: sunlit aged parchment */
+/* Light mode: map already has parchment colors, just subtle enhancement */
 [data-theme="light"] .scrolly-map-sticky .world-map {
-  filter: sepia(0.55) saturate(0.4) contrast(1.15) brightness(0.95) hue-rotate(-12deg);
+  filter: saturate(0.9) brightness(0.98);
 }
 
 [data-theme="light"] .scrolly-map-sticky::before {
-  background: rgba(120, 85, 40, 0.08);
-  box-shadow: inset 0 0 130px 55px rgba(80, 50, 20, 0.35);
+  box-shadow: inset 0 0 80px 25px rgba(80, 55, 25, 0.25);
 }
 
 [data-theme="light"] .marker-dot {
@@ -518,21 +517,19 @@ body {
   position: absolute;
   inset: 0;
   z-index: 0;
-  /* Dark mode: aged parchment by candlelight */
-  filter: brightness(0.28) sepia(0.7) saturate(0.5) contrast(1.4) hue-rotate(-15deg);
+  /* Dark mode: dim the parchment map for dark UI */
+  filter: brightness(0.55) saturate(0.85);
 }
 
-/* Parchment overlay + medieval vignette (dark edges) */
+/* Subtle vignette for aged-map feel */
 .scrolly-map-sticky::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(60, 40, 15, 0.2);
-  mix-blend-mode: multiply;
   pointer-events: none;
   z-index: 1;
-  /* Medieval vignette — darkened edges like aged parchment */
-  box-shadow: inset 0 0 150px 60px rgba(20, 15, 5, 0.7);
+  /* Gentle vignette — darkened edges */
+  box-shadow: inset 0 0 100px 30px rgba(40, 30, 15, 0.4);
 }
 
 /* Subtle left-edge shadow on map for depth separation */

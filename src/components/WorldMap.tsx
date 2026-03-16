@@ -6,8 +6,89 @@ import { getMoodColor } from '../utils/sentiment';
 import type { JournalEntry } from '../types';
 import { format } from 'date-fns';
 
-// Use CARTO Positron (light, minimal) as a base — CSS filters transform it into parchment
+// CARTO Positron — light, minimal base. We recolor every layer after load to parchment tones.
 const PARCHMENT_BASE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
+
+/**
+ * Recolor all map layers to a medieval parchment palette.
+ * Water → tan, land → cream, roads → brown ink, labels → dark brown.
+ */
+function applyParchmentSkin(map: maplibregl.Map) {
+  const style = map.getStyle();
+  if (!style?.layers) return;
+
+  for (const layer of style.layers) {
+    const id = layer.id.toLowerCase();
+    try {
+      // Background → warm parchment
+      if (layer.type === 'background') {
+        map.setPaintProperty(layer.id, 'background-color', '#e8dcc4');
+        continue;
+      }
+
+      // Water → aged tan (no blue!)
+      if (id.includes('water')) {
+        if (layer.type === 'fill') {
+          map.setPaintProperty(layer.id, 'fill-color', '#c9b99a');
+        } else if (layer.type === 'line') {
+          map.setPaintProperty(layer.id, 'line-color', '#b8a888');
+        }
+        continue;
+      }
+
+      // Parks / green areas → muted olive
+      if (id.includes('park') || id.includes('green') || id.includes('landcover')) {
+        if (layer.type === 'fill') {
+          map.setPaintProperty(layer.id, 'fill-color', '#d5caa2');
+          map.setPaintProperty(layer.id, 'fill-opacity', 0.6);
+        }
+        continue;
+      }
+
+      // Land use → light parchment variation
+      if (id.includes('landuse')) {
+        if (layer.type === 'fill') {
+          map.setPaintProperty(layer.id, 'fill-color', '#ddd2b4');
+        }
+        continue;
+      }
+
+      // Roads → faded brown ink
+      if (id.includes('road') || id.includes('highway') || id.includes('tunnel') || id.includes('bridge') || id.includes('path') || id.includes('transit')) {
+        if (layer.type === 'line') {
+          map.setPaintProperty(layer.id, 'line-color', '#c2ad8a');
+        }
+        continue;
+      }
+
+      // Buildings → warm stone
+      if (id.includes('building')) {
+        if (layer.type === 'fill') {
+          map.setPaintProperty(layer.id, 'fill-color', '#d8ccb0');
+        }
+        continue;
+      }
+
+      // Boundaries → dark brown ink
+      if (id.includes('boundary') || id.includes('admin')) {
+        if (layer.type === 'line') {
+          map.setPaintProperty(layer.id, 'line-color', '#8b7355');
+        }
+        continue;
+      }
+
+      // Labels → dark brown ink on parchment halo
+      if (layer.type === 'symbol') {
+        try { map.setPaintProperty(layer.id, 'text-color', '#4a3728'); } catch {}
+        try { map.setPaintProperty(layer.id, 'text-halo-color', '#e8dcc4'); } catch {}
+        try { map.setPaintProperty(layer.id, 'text-halo-width', 1.5); } catch {}
+        continue;
+      }
+    } catch {
+      // Skip layers that can't be modified
+    }
+  }
+}
 
 export default function WorldMap() {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -36,6 +117,7 @@ export default function WorldMap() {
     map.addControl(new maplibregl.NavigationControl({ showCompass: true }), 'bottom-right');
 
     map.on('load', () => {
+      applyParchmentSkin(map);
       setMapLoaded(true);
     });
 
