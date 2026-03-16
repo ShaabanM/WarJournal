@@ -508,6 +508,18 @@ body {
   position: absolute;
   inset: 0;
   z-index: 0;
+  filter: sepia(0.15) hue-rotate(-5deg) saturate(0.8) brightness(0.95);
+}
+
+/* Warm tint overlay to match the app's amber/sepia palette */
+.scrolly-map-sticky::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(26, 25, 23, 0.25);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* Subtle left-edge shadow on map for depth separation */
@@ -517,7 +529,7 @@ body {
   top: 0;
   left: 0;
   bottom: 0;
-  width: 24px;
+  width: 32px;
   background: linear-gradient(to right, var(--bg-deep) 0%, transparent 100%);
   pointer-events: none;
   z-index: 2;
@@ -534,7 +546,7 @@ body {
 /* --- Single entry card --- */
 .scrolly-entry {
   max-width: 680px;
-  margin: 0 0 48px;
+  margin: 0 auto 48px;
   padding: 32px;
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -833,6 +845,7 @@ body {
   border-radius: 4px;
   backdrop-filter: blur(8px);
   border: 1px solid var(--border);
+  white-space: nowrap;
 }
 
 .marker-city {
