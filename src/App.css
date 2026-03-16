@@ -849,6 +849,48 @@ body {
   padding: 16px 20px;
 }
 
+/* Setup banner */
+.setup-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 20px 12px;
+  padding: 14px 16px;
+  background: rgba(240, 165, 0, 0.08);
+  border: 1px solid rgba(240, 165, 0, 0.2);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+}
+
+.setup-banner:hover {
+  background: rgba(240, 165, 0, 0.12);
+  border-color: rgba(240, 165, 0, 0.35);
+}
+
+.setup-banner-icon {
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.setup-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.setup-banner-text strong {
+  font-size: 13px;
+  color: var(--accent);
+}
+
+.setup-banner-text span {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
 /* Toast */
 .toast {
   margin: 0 20px 12px;

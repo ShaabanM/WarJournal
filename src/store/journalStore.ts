@@ -60,26 +60,39 @@ export const useJournalStore = create<JournalState>((set, get) => ({
   loadPublishedEntries: async () => {
     set({ isLoading: true });
     const { settings } = get();
-    if (settings.githubOwner && settings.githubRepo) {
-      const entries = await fetchPublishedEntries(settings.githubOwner, settings.githubRepo);
-      if (entries.length > 0) {
-        set({ entries, isLoading: false });
-        return;
-      }
-    }
-    // Fallback: try loading from bundled data
-    try {
-      const res = await fetch(import.meta.env.BASE_URL + 'data/entries.json');
-      if (res.ok) {
-        const data = await res.json();
-        set({ entries: data.entries || [], isLoading: false });
-        return;
-      }
-    } catch { /* ignore */ }
 
-    // Fallback: load from local DB
-    const entries = await db.getAllEntries();
-    set({ entries, isLoading: false });
+    // Always load local entries first — author's entries on this device
+    const localEntries = await db.getAllEntries();
+
+    // Then try to load remote/published entries
+    let remoteEntries: JournalEntry[] = [];
+
+    if (settings.githubOwner && settings.githubRepo) {
+      remoteEntries = await fetchPublishedEntries(settings.githubOwner, settings.githubRepo);
+    }
+
+    // If no remote entries found, try the bundled data file
+    if (remoteEntries.length === 0) {
+      try {
+        const res = await fetch(import.meta.env.BASE_URL + 'data/entries.json');
+        if (res.ok) {
+          const data = await res.json();
+          remoteEntries = data.entries || [];
+        }
+      } catch { /* ignore */ }
+    }
+
+    // Merge: local entries take priority (they may be newer), remote fills gaps
+    const mergedMap = new Map<string, JournalEntry>();
+    for (const entry of remoteEntries) {
+      mergedMap.set(entry.id, entry);
+    }
+    for (const entry of localEntries) {
+      mergedMap.set(entry.id, entry); // local overwrites remote for same ID
+    }
+
+    const merged = Array.from(mergedMap.values());
+    set({ entries: merged, isLoading: false });
   },
 
   loadSettings: async () => {

@@ -27,7 +27,7 @@ interface NewEntryProps {
 }
 
 export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
-  const { addEntry, updateEntry } = useJournalStore();
+  const { addEntry, updateEntry, publish: publishToGithub, settings } = useJournalStore();
   const { isLocating, error: geoError, getLocation } = useGeolocation();
   const {
     text: voiceText, isListening, isSupported: speechSupported,
@@ -89,7 +89,7 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
     setPhotos((prev) => prev.filter((p) => p.id !== id));
   };
 
-  const handleSave = async (publish: boolean) => {
+  const handleSave = async (shouldPublish: boolean) => {
     if (!entryLocation) return;
     setIsSaving(true);
 
@@ -103,7 +103,7 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
       mood: mood as JournalEntry['mood'],
       photos,
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
-      isPublished: publish,
+      isPublished: shouldPublish,
       createdAt: editEntry?.createdAt || now,
       updatedAt: now,
     };
@@ -112,6 +112,14 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
       await updateEntry(entry);
     } else {
       await addEntry(entry);
+    }
+
+    // Auto-push to GitHub when publishing (if credentials are configured)
+    if (shouldPublish && settings.githubToken && settings.githubOwner && settings.githubRepo) {
+      // Fire and forget — don't block the UI, push happens in background
+      publishToGithub().then((success) => {
+        if (!success) console.warn('Auto-publish to GitHub failed');
+      });
     }
 
     setIsSaving(false);

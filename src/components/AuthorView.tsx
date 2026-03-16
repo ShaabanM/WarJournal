@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   Plus, Settings, Upload, Loader2, BookOpen, MapPin,
-  Calendar, Eye, Pencil, Trash2, Globe
+  Calendar, Eye, Pencil, Trash2, Globe, AlertTriangle
 } from 'lucide-react';
 import { useJournalStore } from '../store/journalStore';
 import { format } from 'date-fns';
@@ -12,7 +12,7 @@ import type { JournalEntry } from '../types';
 export default function AuthorView() {
   const {
     entries, isPublishing, loadEntries, publish, deleteEntry, flyToEntry,
-    setViewMode
+    setViewMode, settings
   } = useJournalStore();
   const [showNewEntry, setShowNewEntry] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -92,6 +92,19 @@ export default function AuthorView() {
           <span>Publish All</span>
         </button>
       </div>
+
+      {/* GitHub not configured banner */}
+      {!settings.githubToken && (
+        <div className="setup-banner" onClick={() => setShowSettings(true)}>
+          <div className="setup-banner-icon">
+            <AlertTriangle size={18} />
+          </div>
+          <div className="setup-banner-text">
+            <strong>GitHub not connected</strong>
+            <span>Your entries are saved locally on this device only. Connect GitHub in Settings to share your journal with others and sync across devices.</span>
+          </div>
+        </div>
+      )}
 
       {publishResult && (
         <div className={`toast ${publishResult.includes('success') ? 'toast-success' : 'toast-error'}`}>
