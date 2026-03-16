@@ -982,6 +982,19 @@ body {
   line-height: 1.4;
 }
 
+/* Saving indicator */
+.saving-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 20px 12px;
+  padding: 10px 16px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
 /* Toast */
 .toast {
   margin: 0 20px 12px;

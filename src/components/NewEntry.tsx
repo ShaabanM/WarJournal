@@ -17,7 +17,7 @@ interface NewEntryProps {
 }
 
 export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
-  const { addEntry, updateEntry, publish: publishToGithub, settings, showToast } = useJournalStore();
+  const { addEntry, updateEntry, settings, isSaving } = useJournalStore();
   const { isLocating, error: geoError, getLocation } = useGeolocation();
   const {
     text: voiceText, isListening, isSupported: speechSupported,
@@ -30,7 +30,7 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
   const [photos, setPhotos] = useState<EntryPhoto[]>(editEntry?.photos || []);
   const [tags, setTags] = useState<string>(editEntry?.tags?.join(', ') || '');
   const [entryLocation, setEntryLocation] = useState<GeoLocation | null>(editEntry?.location || null);
-  const [isSaving, setIsSaving] = useState(false);
+  const [localSaving, setLocalSaving] = useState(false);
   const [newsHeadline, setNewsHeadline] = useState(editEntry?.newsHeadline || '');
   const [entryDate, setEntryDate] = useState(
     editEntry?.manualDate
@@ -63,7 +63,6 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
     if (isListening) {
       stopListening();
     } else {
-      // Set current content as the starting point for voice
       setVoiceText(content);
       startListening();
     }
@@ -120,10 +119,16 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
     setGeocodeResults([]);
   };
 
-  const handleSave = async (shouldPublish: boolean) => {
+  const handleSave = async (asDraft: boolean) => {
     const loc = entryLocation;
     if (!loc) return;
-    setIsSaving(true);
+
+    if (!settings.githubToken || !settings.githubOwner || !settings.githubRepo) {
+      useJournalStore.getState().showToast('Configure GitHub in Settings before saving', 'error');
+      return;
+    }
+
+    setLocalSaving(true);
 
     const now = new Date().toISOString();
     const todayStr = new Date().toISOString().slice(0, 10);
@@ -138,7 +143,7 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
       mood: mood || undefined,
       photos,
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
-      isPublished: shouldPublish,
+      isPublished: !asDraft,
       createdAt: editEntry?.createdAt || now,
       updatedAt: now,
       newsHeadline: newsHeadline || undefined,
@@ -151,25 +156,12 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
       await addEntry(entry);
     }
 
-    // Auto-push to GitHub when publishing (if credentials are configured)
-    if (shouldPublish && settings.githubToken && settings.githubOwner && settings.githubRepo) {
-      // Fire and forget — don't block the UI, push happens in background
-      publishToGithub().then((success) => {
-        if (success) {
-          showToast('Entry published & synced to GitHub ✓', 'success');
-        } else {
-          showToast('Entry saved locally but GitHub sync failed — will retry next publish', 'error');
-        }
-      });
-    } else if (shouldPublish) {
-      showToast('Entry saved locally (configure GitHub in settings to sync)', 'info');
-    }
-
-    setIsSaving(false);
+    setLocalSaving(false);
     onClose();
   };
 
   const moodColor = getMoodColor(mood || undefined);
+  const saving = localSaving || isSaving;
 
   return (
     <div className="new-entry-overlay">
@@ -362,19 +354,19 @@ export default function NewEntry({ onClose, editEntry }: NewEntryProps) {
         <div className="entry-actions">
           <button
             className="btn btn-secondary"
-            onClick={() => handleSave(false)}
-            disabled={!entryLocation || !content || isSaving}
+            onClick={() => handleSave(true)}
+            disabled={!entryLocation || !content || saving}
           >
             <Save size={16} />
-            <span>Save Draft</span>
+            <span>Save as Draft</span>
           </button>
           <button
             className="btn btn-primary"
-            onClick={() => handleSave(true)}
-            disabled={!entryLocation || !content || isSaving}
+            onClick={() => handleSave(false)}
+            disabled={!entryLocation || !content || saving}
           >
-            {isSaving ? <Loader2 size={16} className="spin" /> : <Send size={16} />}
-            <span>Publish</span>
+            {saving ? <Loader2 size={16} className="spin" /> : <Send size={16} />}
+            <span>Save & Publish</span>
           </button>
         </div>
       </div>

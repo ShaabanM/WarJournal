@@ -15,8 +15,8 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
   const [authorPin, setAuthorPin] = useState(settings.authorPin || '');
   const [saved, setSaved] = useState(false);
 
-  const handleSave = async () => {
-    await saveSettings({
+  const handleSave = () => {
+    saveSettings({
       ...settings,
       authorName,
       githubToken: githubToken || undefined,
@@ -63,10 +63,10 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
           </div>
 
           <div className="settings-section">
-            <h3><Github size={16} /> GitHub Publishing</h3>
+            <h3><Github size={16} /> GitHub Storage</h3>
             <p className="settings-description">
-              Connect to GitHub to publish your journal entries. Readers will be able to
-              follow your journey on the GitHub Pages site.
+              Connect to GitHub to store and sync your journal entries across devices.
+              Your token is stored on this device only.
             </p>
             <label className="setting-field">
               <span>GitHub Username</span>

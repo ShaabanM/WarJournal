@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
-  Plus, Settings, Upload, Loader2, BookOpen, MapPin,
-  Calendar, Eye, Pencil, Trash2, Globe, AlertTriangle, Sun, Moon,
-  RefreshCw
+  Plus, Settings, Loader2, BookOpen, MapPin,
+  Calendar, Eye, Pencil, Trash2, Sun, Moon, AlertTriangle
 } from 'lucide-react';
 import { useJournalStore, getEntryDisplayDate } from '../store/journalStore';
 import { format } from 'date-fns';
@@ -12,14 +11,12 @@ import type { JournalEntry } from '../types';
 
 export default function AuthorView() {
   const {
-    entries, isPublishing, isLoading, loadEntries, publish, deleteEntry, flyToEntry,
-    setViewMode, settings, setTheme, syncEntries
+    entries, isSaving, isLoading, loadEntries, deleteEntry, flyToEntry,
+    setViewMode, settings, setTheme
   } = useJournalStore();
   const [showNewEntry, setShowNewEntry] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [editingEntry, setEditingEntry] = useState<JournalEntry | undefined>();
-  const [publishResult, setPublishResult] = useState<string | null>(null);
-  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
     loadEntries();
@@ -31,18 +28,6 @@ export default function AuthorView() {
       new Date(getEntryDisplayDate(b)).getTime() -
       new Date(getEntryDisplayDate(a)).getTime()
   );
-
-  const handlePublish = async () => {
-    const success = await publish();
-    setPublishResult(success ? 'Published successfully!' : 'Failed to publish. Check settings.');
-    setTimeout(() => setPublishResult(null), 3000);
-  };
-
-  const handleSync = async () => {
-    setIsSyncing(true);
-    await syncEntries();
-    setIsSyncing(false);
-  };
 
   const handleEdit = (entry: JournalEntry) => {
     setEditingEntry(entry);
@@ -89,14 +74,17 @@ export default function AuthorView() {
             <BookOpen size={14} />
             <span>{entries.length} entries</span>
           </div>
-          <div className="stat">
-            <Globe size={14} />
-            <span>{publishedCount} published</span>
-          </div>
-          <div className="stat">
-            <Pencil size={14} />
-            <span>{draftCount} drafts</span>
-          </div>
+          {publishedCount > 0 && (
+            <div className="stat">
+              <span>{publishedCount} published</span>
+            </div>
+          )}
+          {draftCount > 0 && (
+            <div className="stat">
+              <Pencil size={14} />
+              <span>{draftCount} drafts</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -104,23 +92,6 @@ export default function AuthorView() {
         <button className="btn btn-primary" onClick={() => { setEditingEntry(undefined); setShowNewEntry(true); }}>
           <Plus size={18} />
           <span>New Entry</span>
-        </button>
-        <button
-          className="btn btn-secondary"
-          onClick={handleSync}
-          disabled={isSyncing || isLoading}
-          title="Pull entries from other devices"
-        >
-          {isSyncing ? <Loader2 size={18} className="spin" /> : <RefreshCw size={18} />}
-          <span>Sync</span>
-        </button>
-        <button
-          className="btn btn-secondary"
-          onClick={handlePublish}
-          disabled={isPublishing || publishedCount === 0}
-        >
-          {isPublishing ? <Loader2 size={18} className="spin" /> : <Upload size={18} />}
-          <span>Publish All</span>
         </button>
       </div>
 
@@ -132,19 +103,29 @@ export default function AuthorView() {
           </div>
           <div className="setup-banner-text">
             <strong>GitHub not connected</strong>
-            <span>Your entries are saved locally on this device only. Connect GitHub in Settings to share your journal with others and sync across devices.</span>
+            <span>Configure GitHub in Settings to create, edit, and sync entries across devices.</span>
           </div>
         </div>
       )}
 
-      {publishResult && (
-        <div className={`toast ${publishResult.includes('success') ? 'toast-success' : 'toast-error'}`}>
-          {publishResult}
+      {/* Saving indicator */}
+      {isSaving && (
+        <div className="saving-indicator">
+          <Loader2 size={14} className="spin" />
+          <span>Saving to GitHub...</span>
+        </div>
+      )}
+
+      {/* Loading indicator */}
+      {isLoading && (
+        <div className="saving-indicator">
+          <Loader2 size={14} className="spin" />
+          <span>Loading entries...</span>
         </div>
       )}
 
       <div className="entries-list">
-        {entries.length === 0 ? (
+        {entries.length === 0 && !isLoading ? (
           <div className="empty-state">
             <MapPin size={48} />
             <h3>No entries yet</h3>

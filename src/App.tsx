@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useJournalStore } from './store/journalStore';
+import { migrateFromDexie } from './utils/migrateFromDexie';
 import ReaderView from './components/ReaderView';
 import AuthorView from './components/AuthorView';
 import ToastContainer from './components/Toast';
@@ -7,9 +8,14 @@ import './App.css';
 
 export default function App() {
   const { viewMode, loadSettings } = useJournalStore();
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    loadSettings();
+    // Migrate settings from old IndexedDB, then load from localStorage
+    migrateFromDexie().then(() => {
+      loadSettings();
+      setReady(true);
+    });
   }, [loadSettings]);
 
   // Check URL hash for author mode
@@ -24,6 +30,10 @@ export default function App() {
   useEffect(() => {
     window.location.hash = viewMode === 'author' ? '#author' : '';
   }, [viewMode]);
+
+  if (!ready) {
+    return <div className="app" />;
+  }
 
   return (
     <div className="app">

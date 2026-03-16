@@ -10,7 +10,7 @@ import { getTotalDistance } from '../utils/geo';
 export default function ReaderView() {
   const {
     entries, isLoading, activeEntryId,
-    loadPublishedEntries, setViewMode, loadSettings,
+    loadEntries, setViewMode, loadSettings,
     setActiveEntryId, searchQuery, setSearchQuery,
     settings, setTheme,
   } = useJournalStore();
@@ -19,7 +19,8 @@ export default function ReaderView() {
   const entryRefsMap = useRef<Map<string, HTMLElement>>(new Map());
 
   useEffect(() => {
-    loadSettings().then(() => loadPublishedEntries());
+    loadSettings();
+    loadEntries();
   }, []);
 
   // Scroll observer — fires when entry enters center 20% of viewport
