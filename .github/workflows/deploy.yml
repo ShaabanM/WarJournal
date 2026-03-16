@@ -28,10 +28,11 @@ jobs:
       - run: npm ci
       - run: npm run build
 
-      # Copy data directory to dist if it exists
+      # Overlay repo data/ into dist/data/ (overwrite the placeholder from public/)
       - run: |
           if [ -d "data" ]; then
-            cp -r data dist/data
+            mkdir -p dist/data
+            cp -f data/* dist/data/
           fi
 
       - uses: actions/upload-pages-artifact@v3

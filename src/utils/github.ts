@@ -114,13 +114,20 @@ export async function publishEntries(
 
 /**
  * Derive GitHub owner/repo from the current deployment URL.
- * Works for GitHub Pages URLs like https://shaabanm.github.io/WarJournal/
+ * Works for:
+ * - GitHub Pages: https://shaabanm.github.io/WarJournal/
+ * - Custom domains: https://moshaaban.com/WarJournal/
+ * - Any deployment using the Vite base path (e.g. /WarJournal/)
+ *
+ * Falls back to repo name from the Vite base path + a well-known owner
+ * when the URL doesn't match *.github.io (e.g. custom domains).
  */
 export function deriveGitHubInfo(): { owner: string; repo: string } | null {
   try {
-    const host = window.location.hostname; // e.g. "shaabanm.github.io"
+    const host = window.location.hostname; // e.g. "shaabanm.github.io" or "moshaaban.com"
     const path = window.location.pathname; // e.g. "/WarJournal/" or "/WarJournal/index.html"
 
+    // Method 1: Parse from *.github.io URL
     if (host.endsWith('.github.io')) {
       const owner = host.replace('.github.io', '');
       const repo = path.split('/').filter(Boolean)[0] || '';
@@ -128,8 +135,18 @@ export function deriveGitHubInfo(): { owner: string; repo: string } | null {
         return { owner, repo };
       }
     }
+
+    // Method 2: Derive from Vite base path (handles custom domains like moshaaban.com)
+    // The base path (e.g. "/WarJournal/") gives us the repo name.
+    // We use the known GitHub owner since custom domains don't encode it.
+    const basePath = import.meta.env.BASE_URL || '/'; // e.g. "/WarJournal/"
+    const repoFromBase = basePath.split('/').filter(Boolean)[0];
+    if (repoFromBase) {
+      // Known owner for this project — custom domains don't encode the GitHub username
+      return { owner: 'ShaabanM', repo: repoFromBase };
+    }
   } catch {
-    // not on GitHub Pages
+    // not on GitHub Pages or custom domain
   }
   return null;
 }
