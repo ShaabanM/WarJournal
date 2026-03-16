@@ -1,5 +1,34 @@
 {
-  "entries": [],
-  "exportedAt": "2026-03-16T12:00:00.000Z",
-  "totalEntries": 0
+  "entries": [
+    {
+      "id": "ffc0f35b-a2aa-4d3d-bae4-62fb4120999b",
+      "timestamp": "2026-03-16T12:51:13.835Z",
+      "location": {
+        "lat": 25.1860981,
+        "lng": 55.2834023,
+        "city": "Business Bay",
+        "country": "United Arab Emirates",
+        "placeName": "J ONE, Marasi Drive, Business Bay"
+      },
+      "title": "Fog of War",
+      "content": "Today was supposed to be our final day in the hotel. We had just picked up the keys to our new apartment, and the plan was to go on a nice double date with a pair of friends. Afterwards, we were going to buy furniture so we could finally settle down after four months of hotel living.\n\nHowever, the world seemed to have another plan.\n\nWhile we were mid romantic boat ride with our friends, the news started rolling in that the U.S. and Israel had hit Iran, and that Iran was retaliating by firing toward the Gulf. What was supposed to be a romantic boat ride quickly turned into a panicked one—taking phone calls and trying to figure out what this meant for us, but also for our employees on the ground.\n\nOnce the boat docked, we headed back to our hotel room and invited our coworkers over so none of us had to experience the chaos alone. We ordered some shawarma and sat together, hanging out in confusion.\n\nI found myself feeling a mixture of anxiety, excitement but also fun. I would be lying if I said the novelty seeker in me was not a bit fascinated but ultimately I was concerned for what this means. I hope this will be a 48 hour ordeal that does not really impact Dubai.",
+      "mood": "Anxious but joyful",
+      "photos": [
+        {
+          "id": "8c212da0-5bdb-43e2-afc4-82665983bc9a",
+          "dataUrl": "",
+          "timestamp": "2026-03-16T12:42:30.701Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/ffc0f35b-a2aa-4d3d-bae4-62fb4120999b/8c212da0-5bdb-43e2-afc4-82665983bc9a.jpg"
+        }
+      ],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-03-16T12:51:13.835Z",
+      "updatedAt": "2026-03-16T12:51:13.835Z",
+      "newsHeadline": "US-Israeli strikes kill Khamenei and Iranian retaliation shakes Gulf - As it happened\nALSO\n‘Therians’ — People Who Identify as Wolves and Foxes — Are Taking Over TikTok....",
+      "manualDate": "2026-02-28T11:00:00.000Z"
+    }
+  ],
+  "exportedAt": "2026-03-16T12:51:15.280Z",
+  "totalEntries": 1
 }
