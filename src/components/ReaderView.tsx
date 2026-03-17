@@ -141,6 +141,8 @@ export default function ReaderView() {
             <span className="sidebar-stat__label">countries</span>
           </div>
         </div>
+
+        <a href="#art" className="sidebar-art-link">Art Mode</a>
       </aside>
 
       {/* Main scroll area */}
