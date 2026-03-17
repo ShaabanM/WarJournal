@@ -543,13 +543,17 @@ body {
   position: relative;
   z-index: 5;
   width: calc(62% + var(--sidebar-width) * 0.38);
-  padding: 32px clamp(16px, 3vw, 40px) 100px;
+  padding: 32px 0 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* --- Single entry card --- */
 .scrolly-entry {
   max-width: 680px;
-  margin: 0 auto 48px;
+  width: calc(100% - clamp(32px, 6vw, 80px));
+  margin: 0 0 48px;
   padding: 32px;
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -729,7 +733,8 @@ body {
 /* End marker */
 .scrolly-end {
   max-width: 680px;
-  margin: 60px auto 0;
+  width: calc(100% - clamp(32px, 6vw, 80px));
+  margin: 60px 0 0;
   text-align: center;
 }
 
@@ -2025,10 +2030,11 @@ body {
 
   .scrolly-entries {
     width: 100%;
-    padding: 0 16px 120px;
+    padding: 0 0 120px;
   }
 
   .scrolly-entry {
+    width: calc(100% - 32px);
     padding: 20px;
     margin-bottom: 24px;
   }
