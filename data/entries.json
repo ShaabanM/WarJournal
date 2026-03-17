@@ -121,8 +121,28 @@
       "updatedAt": "2026-03-17T11:21:55.281Z",
       "newsHeadline": "Fire breaks out near US consulate in Dubai after drone strike",
       "manualDate": "2026-03-05T11:00:00.000Z"
+    },
+    {
+      "id": "f13b3e54-a396-4f9a-a3ff-c108af2acab0",
+      "timestamp": "2026-03-17T13:44:35.685Z",
+      "location": {
+        "lat": 24.1732514,
+        "lng": 55.7355864,
+        "city": "Falaj Hazza'",
+        "country": "United Arab Emirates",
+        "placeName": "Al Ain Zoo, Khor Al Mighayra Street, Falaj Hazza'"
+      },
+      "title": "Back to Al Ain",
+      "content": "Test",
+      "mood": "Test",
+      "photos": [],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-03-17T13:44:35.685Z",
+      "updatedAt": "2026-03-17T13:44:35.685Z",
+      "manualDate": "2026-03-07T11:00:00.000Z"
     }
   ],
-  "exportedAt": "2026-03-17T11:21:55.282Z",
-  "totalEntries": 4
+  "exportedAt": "2026-03-17T13:44:35.688Z",
+  "totalEntries": 5
 }
