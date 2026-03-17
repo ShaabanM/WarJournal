@@ -1,9 +1,12 @@
 import { useCallback } from 'react';
 import { MapPin, Tag, Newspaper } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, differenceInCalendarDays } from 'date-fns';
 import { getEntryDisplayDate } from '../store/journalStore';
 import { getMoodColor } from '../utils/sentiment';
 import type { JournalEntry } from '../types';
+
+/** Day 1 of the war — Feb 28, 2026 */
+const WAR_DAY_ONE = new Date('2026-02-28T00:00:00');
 
 interface ScrollyEntryProps {
   entry: JournalEntry;
@@ -12,7 +15,7 @@ interface ScrollyEntryProps {
   registerRef: (entryId: string, el: Element | null) => void;
 }
 
-export default function ScrollyEntry({ entry, isActive, index, registerRef }: ScrollyEntryProps) {
+export default function ScrollyEntry({ entry, isActive, registerRef }: ScrollyEntryProps) {
   const refCallback = useCallback(
     (el: HTMLDivElement | null) => {
       registerRef(entry.id, el);
@@ -22,7 +25,7 @@ export default function ScrollyEntry({ entry, isActive, index, registerRef }: Sc
 
   const displayDate = getEntryDisplayDate(entry);
   const moodColor = getMoodColor(entry.mood, entry.moodColor);
-  const dayNumber = index + 1;
+  const dayNumber = differenceInCalendarDays(new Date(displayDate), WAR_DAY_ONE) + 1;
 
   return (
     <div
