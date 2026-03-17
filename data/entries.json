@@ -63,8 +63,37 @@
       "updatedAt": "2026-03-17T06:38:29.696Z",
       "newsHeadline": "Missile debris, panic buying jolt Dubai's aura of calm after Iran attack",
       "manualDate": "2026-03-01T11:00:00.000Z"
+    },
+    {
+      "id": "18a0a707-98c1-4316-87c8-db8ec9fb7fa1",
+      "timestamp": "2026-03-17T08:56:12.699Z",
+      "location": {
+        "lat": 24.1732514,
+        "lng": 55.7355864,
+        "city": "Falaj Hazza'",
+        "country": "United Arab Emirates",
+        "placeName": "Al Ain Zoo, Ar Ruqiy Street, Falaj Hazza'"
+      },
+      "title": "The old stomping grounds",
+      "content": "In a weird twist of fate the safest place in the GCC seems to be the old home town of Al Ain. So we have been hiding out here for a few days staying with Hina’s family. Al son is so far removed from the action that when we got there Hina’s parents didn’t know anything was going on.\n\nOther than the occasional middle of the night missile alarm that wakes you up and ruins your sleep you wouldn’t be able to tell anything is going on….\n\nFunnily enough I learned something new about myself in this stay, I hate being bored sooo much that I’d rather get bombed in Dubai than be safe and bored in Al ain … how did I survive 5 years in this town !!\n\nThe boredom has made it so that I’m spending every non working waking minute locked in on the monitor the situation app which has done nothing but skyrocket my anxiety. As a result we have started weighing our options re evacuation.",
+      "mood": "Bored and Sleepy",
+      "moodColor": "#c9b458",
+      "photos": [
+        {
+          "id": "7e1e00cd-cd4b-4623-ac55-d32ec00c9191",
+          "dataUrl": "",
+          "timestamp": "2026-03-17T08:51:25.709Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/18a0a707-98c1-4316-87c8-db8ec9fb7fa1/7e1e00cd-cd4b-4623-ac55-d32ec00c9191.jpg"
+        }
+      ],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-03-17T08:56:12.699Z",
+      "updatedAt": "2026-03-17T08:56:12.699Z",
+      "newsHeadline": "Gulf Nations’ Stockpiles of Interceptors Dwindle Amid Iran’s Relentless Drone and Missile Attacks",
+      "manualDate": "2026-03-03T11:00:00.000Z"
     }
   ],
-  "exportedAt": "2026-03-17T06:38:29.697Z",
-  "totalEntries": 2
+  "exportedAt": "2026-03-17T08:56:14.113Z",
+  "totalEntries": 3
 }
