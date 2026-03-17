@@ -205,8 +205,41 @@
       "createdAt": "2026-03-17T13:47:06.771Z",
       "updatedAt": "2026-03-17T13:47:06.771Z",
       "manualDate": "2026-03-14T11:00:00.000Z"
+    },
+    {
+      "id": "98aae680-012d-43f3-b26d-cb7143040d43",
+      "timestamp": "2026-03-17T21:49:59.035Z",
+      "location": {
+        "lat": 41.90775649168487,
+        "lng": 12.471117557247116,
+        "placeName": "Via Ennio Quirino Visconti, Prati, Municipio Roma I",
+        "city": "Rome",
+        "country": "Italy"
+      },
+      "title": "A Gazillion Dollars!",
+      "content": "It’s been almost a full work week in Rome, and honestly, it feels confusing.\n\nI wake up stressed. We still don’t know where we’ll be in three days. We have a rare vacation coming up, but instead of excitement, I’m dreading it—it feels like a waste of time off when we’ll probably spend it figuring out logistics instead of actually enjoying ourselves.\n\nThen the day starts: back-to-back meetings, crammed into a small hotel room with no proper desk. I’m hunched over, my back hurting, trying to operate as if this is normal.\n\nAnd then work ends.\n\nI step outside, start walking, and it hits me—I’m in Rome.\n\nThe architecture, the light, the musicians playing near these absurdly beautiful landmarks… and suddenly I’m aware of how strange this all is. I’m oscillating between the stress of being displaced by WW3 and this deep, almost guilty gratitude that this displacement has turned into something that looks a lot like a vacation.\n\nIt reminds me of something Kamran said when he saw how our “escape WW3” plan turned into an impromptu Roman getaway:\n“It’s funny what a gazillion dollars can do to a tough situation.”\n\nHe’s right.\n\nThrow enough money at a problem and it doesn’t just become manageable—it can start to feel like it isn’t a problem at all.\n\nThat’s exactly what this is.\n\nWe’ve thrown enough money at the situation that it’s become… almost enjoyable. And that realization—more than anything else—makes me feel incredibly grateful for the position I’m in.",
+      "mood": "Grateful",
+      "moodColor": "#4caf7d",
+      "photos": [
+        {
+          "id": "5f990a7f-638b-4f0c-8520-26f8d798da82",
+          "dataUrl": "",
+          "timestamp": "2026-03-17T21:49:32.836Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/98aae680-012d-43f3-b26d-cb7143040d43/5f990a7f-638b-4f0c-8520-26f8d798da82.jpg"
+        },
+        {
+          "id": "b5a3709d-4654-4758-9558-54d88d004df7",
+          "dataUrl": "",
+          "timestamp": "2026-03-17T21:49:32.931Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/98aae680-012d-43f3-b26d-cb7143040d43/b5a3709d-4654-4758-9558-54d88d004df7.jpg"
+        }
+      ],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-03-17T21:49:59.035Z",
+      "updatedAt": "2026-03-17T21:49:59.035Z"
     }
   ],
-  "exportedAt": "2026-03-17T16:46:10.017Z",
-  "totalEntries": 8
+  "exportedAt": "2026-03-17T21:50:02.185Z",
+  "totalEntries": 9
 }
