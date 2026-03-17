@@ -49,16 +49,22 @@
           "dataUrl": "",
           "timestamp": "2026-03-16T12:55:35.677Z",
           "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/35bd0b7f-7ca9-417d-a530-bec585206a7d/8f134423-2004-4a6f-b28d-482ff9d1770c.jpg"
+        },
+        {
+          "id": "c5854e88-4c5a-4793-b489-b3a24b83f4ba",
+          "dataUrl": "",
+          "timestamp": "2026-03-17T06:31:10.189Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/35bd0b7f-7ca9-417d-a530-bec585206a7d/c5854e88-4c5a-4793-b489-b3a24b83f4ba.jpg"
         }
       ],
       "tags": [],
       "isPublished": true,
       "createdAt": "2026-03-16T12:55:57.245Z",
-      "updatedAt": "2026-03-17T06:30:47.832Z",
+      "updatedAt": "2026-03-17T06:31:14.813Z",
       "newsHeadline": "Missile debris, panic buying jolt Dubai's aura of calm after Iran attack",
       "manualDate": "2026-03-01T11:00:00.000Z"
     }
   ],
-  "exportedAt": "2026-03-17T06:30:47.833Z",
+  "exportedAt": "2026-03-17T06:31:14.819Z",
   "totalEntries": 2
 }
