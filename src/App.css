@@ -380,25 +380,6 @@ body {
   letter-spacing: 0.5px;
 }
 
-.sidebar-art-link {
-  display: block;
-  text-align: center;
-  padding: 10px 16px;
-  border-top: 1px solid var(--border);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  text-decoration: none;
-  transition: color 0.2s var(--ease);
-  flex-shrink: 0;
-}
-
-.sidebar-art-link:hover {
-  color: var(--accent);
-}
-
 /* --- Main scroll area --- */
 .scrolly-main {
   margin-left: var(--sidebar-width);
