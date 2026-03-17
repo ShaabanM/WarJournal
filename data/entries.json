@@ -160,8 +160,27 @@
       "createdAt": "2026-03-17T13:45:47.397Z",
       "updatedAt": "2026-03-17T13:45:47.397Z",
       "manualDate": "2026-03-10T11:00:00.000Z"
+    },
+    {
+      "id": "c70f7df2-7424-4805-bd35-1a15d495532f",
+      "timestamp": "2026-03-17T13:46:30.101Z",
+      "location": {
+        "lat": 45.4641943,
+        "lng": 9.1896346,
+        "city": "Milan",
+        "country": "Italy",
+        "placeName": "Milan, Lombardy, Italy"
+      },
+      "title": "Escaped WW3?",
+      "content": "Did we do it?!",
+      "photos": [],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-03-17T13:46:30.101Z",
+      "updatedAt": "2026-03-17T13:46:30.101Z",
+      "manualDate": "2026-03-12T11:00:00.000Z"
     }
   ],
-  "exportedAt": "2026-03-17T13:45:47.400Z",
-  "totalEntries": 6
+  "exportedAt": "2026-03-17T13:46:30.107Z",
+  "totalEntries": 7
 }
