@@ -141,8 +141,27 @@
       "createdAt": "2026-03-17T13:44:35.685Z",
       "updatedAt": "2026-03-17T13:44:35.685Z",
       "manualDate": "2026-03-07T11:00:00.000Z"
+    },
+    {
+      "id": "2b3a2531-29f6-4826-b5ca-d9a7d308e7f0",
+      "timestamp": "2026-03-17T13:45:47.397Z",
+      "location": {
+        "lat": 24.4409311,
+        "lng": 54.637726,
+        "city": "Abu Dhabi",
+        "country": "United Arab Emirates",
+        "placeName": "Zayed International Airport, Sheikh Khalifa Bin Zayed Street, Zayed International Airport"
+      },
+      "title": "Last minute evac...",
+      "content": "Finally we can fly out very sudden.",
+      "photos": [],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-03-17T13:45:47.397Z",
+      "updatedAt": "2026-03-17T13:45:47.397Z",
+      "manualDate": "2026-03-10T11:00:00.000Z"
     }
   ],
-  "exportedAt": "2026-03-17T13:44:35.688Z",
-  "totalEntries": 5
+  "exportedAt": "2026-03-17T13:45:47.400Z",
+  "totalEntries": 6
 }
