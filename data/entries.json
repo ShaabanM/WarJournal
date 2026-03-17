@@ -133,13 +133,15 @@
         "placeName": "Al Ain Zoo, Khor Al Mighayra Street, Falaj Hazza'"
       },
       "title": "Back to Al Ain",
-      "content": "Test",
-      "mood": "Test",
+      "content": "All of our flights out of country have gotten canceled and bombings have picked up quite a bit in Dubai. For safety reasons we are back in Al Ain but I am feeling a bit defeated as I cant seem to get a reliable way to leave with Baloo with us + feel pretty trapped in Al Ain.",
+      "mood": "Defeated",
+      "moodColor": "#d97c7c",
       "photos": [],
       "tags": [],
       "isPublished": true,
       "createdAt": "2026-03-17T13:44:35.685Z",
-      "updatedAt": "2026-03-17T13:44:35.685Z",
+      "updatedAt": "2026-03-17T21:58:39.037Z",
+      "newsHeadline": "Death Toll Climbs to 787 as U.S. and Israel Step Up Bombings Across Iran",
       "manualDate": "2026-03-07T11:00:00.000Z"
     },
     {
@@ -241,6 +243,6 @@
       "newsHeadline": "Iran war live: Tehran confirms Larijani, Soleimani killed"
     }
   ],
-  "exportedAt": "2026-03-17T21:56:31.394Z",
+  "exportedAt": "2026-03-17T21:58:39.038Z",
   "totalEntries": 9
 }
