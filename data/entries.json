@@ -97,11 +97,11 @@
       "id": "79d006e8-6981-409e-8a77-e83bc9da804a",
       "timestamp": "2026-03-17T10:22:43.975Z",
       "location": {
-        "lat": 25.2296341,
-        "lng": 55.289585,
-        "city": "Dubai",
+        "lat": 25.2589663,
+        "lng": 55.309186,
+        "city": "Deira",
         "country": "United Arab Emirates",
-        "placeName": "Dubai, United Arab Emirates"
+        "placeName": "Consulate of the United States of America, Al Seef Street, Bur Dubai"
       },
       "title": "Closing deals mid bomb",
       "content": "Soo we are back in Dubai which honestly has helped reinject me with some life due to lack of boredom ! ",
@@ -118,11 +118,11 @@
       "tags": [],
       "isPublished": true,
       "createdAt": "2026-03-17T10:22:43.975Z",
-      "updatedAt": "2026-03-17T10:23:03.111Z",
+      "updatedAt": "2026-03-17T11:21:55.281Z",
       "newsHeadline": "Fire breaks out near US consulate in Dubai after drone strike",
       "manualDate": "2026-03-05T11:00:00.000Z"
     }
   ],
-  "exportedAt": "2026-03-17T10:23:03.115Z",
+  "exportedAt": "2026-03-17T11:21:55.282Z",
   "totalEntries": 4
 }
