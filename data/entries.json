@@ -179,8 +179,27 @@
       "createdAt": "2026-03-17T13:46:30.101Z",
       "updatedAt": "2026-03-17T13:46:30.101Z",
       "manualDate": "2026-03-12T11:00:00.000Z"
+    },
+    {
+      "id": "18617215-b0ac-40c3-b03b-6398fdba4267",
+      "timestamp": "2026-03-17T13:47:06.771Z",
+      "location": {
+        "lat": 41.8933203,
+        "lng": 12.4829321,
+        "city": "Rome",
+        "country": "Italy",
+        "placeName": "Rome, Roma Capitale, Lazio"
+      },
+      "title": "ROMA!",
+      "content": "Test",
+      "photos": [],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-03-17T13:47:06.771Z",
+      "updatedAt": "2026-03-17T13:47:06.771Z",
+      "manualDate": "2026-03-14T11:00:00.000Z"
     }
   ],
-  "exportedAt": "2026-03-17T13:46:30.107Z",
-  "totalEntries": 7
+  "exportedAt": "2026-03-17T13:47:06.773Z",
+  "totalEntries": 8
 }
