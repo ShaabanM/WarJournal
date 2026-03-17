@@ -109,20 +109,20 @@
       "moodColor": "#4caf7d",
       "photos": [
         {
-          "id": "b0746141-7a2f-44b9-bb09-5bdcd0d5af96",
+          "id": "b347810b-06d0-4c58-8818-3324a6468521",
           "dataUrl": "",
-          "timestamp": "2026-03-17T10:20:46.382Z",
-          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/79d006e8-6981-409e-8a77-e83bc9da804a/b0746141-7a2f-44b9-bb09-5bdcd0d5af96.jpg"
+          "timestamp": "2026-03-17T10:22:59.992Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/79d006e8-6981-409e-8a77-e83bc9da804a/b347810b-06d0-4c58-8818-3324a6468521.jpg"
         }
       ],
       "tags": [],
       "isPublished": true,
       "createdAt": "2026-03-17T10:22:43.975Z",
-      "updatedAt": "2026-03-17T10:22:43.975Z",
+      "updatedAt": "2026-03-17T10:23:03.111Z",
       "newsHeadline": "Fire breaks out near US consulate in Dubai after drone strike",
       "manualDate": "2026-03-05T11:00:00.000Z"
     }
   ],
-  "exportedAt": "2026-03-17T10:22:45.298Z",
+  "exportedAt": "2026-03-17T10:23:03.115Z",
   "totalEntries": 4
 }
