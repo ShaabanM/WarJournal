@@ -133,13 +133,14 @@
         "placeName": "Al Ain Zoo, Khor Al Mighayra Street, Falaj Hazza'"
       },
       "title": "Back to Al Ain",
-      "content": "Test",
-      "mood": "Test",
+      "content": "Things have started to pick up in Dubai and all of our flights keep getting canceled and we cant seem to find any real evacuation options that are dog friendly. Feeling a bit defeated but for safety reasons we have moved back to Al Ain for now.\n\nAlso on a separate note... the Jetour T2 SUCKS! I have completely lost faith in Chinese cars. I guess American tech and innovation is safe after all...",
+      "mood": "Defeated",
+      "moodColor": "#d9534f",
       "photos": [],
       "tags": [],
       "isPublished": true,
       "createdAt": "2026-03-17T13:44:35.685Z",
-      "updatedAt": "2026-03-17T13:44:35.685Z",
+      "updatedAt": "2026-03-17T22:14:39.084Z",
       "manualDate": "2026-03-07T11:00:00.000Z"
     },
     {
@@ -250,6 +251,6 @@
       "newsHeadline": "Iran war live: Tehran confirms Larijani, Soleimani killed"
     }
   ],
-  "exportedAt": "2026-03-17T22:05:08.405Z",
+  "exportedAt": "2026-03-17T22:14:39.085Z",
   "totalEntries": 9
 }
