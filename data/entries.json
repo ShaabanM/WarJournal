@@ -173,11 +173,18 @@
       },
       "title": "Escaped WW3?",
       "content": "Did we do it?!",
-      "photos": [],
+      "photos": [
+        {
+          "id": "4db09b6d-b6cc-4feb-ac73-6b5632282939",
+          "dataUrl": "",
+          "timestamp": "2026-03-17T16:46:05.190Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/c70f7df2-7424-4805-bd35-1a15d495532f/4db09b6d-b6cc-4feb-ac73-6b5632282939.jpg"
+        }
+      ],
       "tags": [],
       "isPublished": true,
       "createdAt": "2026-03-17T13:46:30.101Z",
-      "updatedAt": "2026-03-17T13:46:30.101Z",
+      "updatedAt": "2026-03-17T16:46:10.010Z",
       "manualDate": "2026-03-12T11:00:00.000Z"
     },
     {
@@ -200,6 +207,6 @@
       "manualDate": "2026-03-14T11:00:00.000Z"
     }
   ],
-  "exportedAt": "2026-03-17T13:47:06.773Z",
+  "exportedAt": "2026-03-17T16:46:10.017Z",
   "totalEntries": 8
 }
