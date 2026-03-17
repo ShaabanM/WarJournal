@@ -174,7 +174,9 @@
         "placeName": "Milan, Lombardy, Italy"
       },
       "title": "Escaped WW3?",
-      "content": "Did we do it?! Test",
+      "content": "Early this morning we arrived in Milan after a LOONG night of travel. We are safe and celebrated checking into our hotel by taking a free photo booth photo. Feeling a bit relieved to have made it out safely after all the failed attempts. Not sure what our plan is yet but we can stay in the EU for 80ish days before we have to find somewhere else to be. Going to try to enjoy some good food and find a way to distract ourselves form this temporary displacment.",
+      "mood": "Relief",
+      "moodColor": "#a3b07c",
       "photos": [
         {
           "id": "4db09b6d-b6cc-4feb-ac73-6b5632282939",
@@ -186,7 +188,8 @@
       "tags": [],
       "isPublished": true,
       "createdAt": "2026-03-17T13:46:30.101Z",
-      "updatedAt": "2026-03-17T22:05:08.403Z",
+      "updatedAt": "2026-03-17T22:21:56.350Z",
+      "newsHeadline": "Iran Says U.S. and Israeli Strikes Have Killed 1,348 Civilians",
       "manualDate": "2026-03-12T11:00:00.000Z"
     },
     {
@@ -252,6 +255,6 @@
       "newsHeadline": "Iran war live: Tehran confirms Larijani, Soleimani killed"
     }
   ],
-  "exportedAt": "2026-03-17T22:18:15.253Z",
+  "exportedAt": "2026-03-17T22:21:56.350Z",
   "totalEntries": 9
 }
