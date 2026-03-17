@@ -104,9 +104,9 @@
         "placeName": "Consulate of the United States of America, Al Seef Street, Bur Dubai"
       },
       "title": "Closing deals mid bomb",
-      "content": "Sooo we are back in Dubai which honestly has helped reinject me with some life due to lack of boredom ! The funniest part here though is last night there where some major attacks by Iran on the US consulate in Dubai yet today I had to do an in person pretty important work meeting a block away from that consulate... To be honest, that risk was still far more enjoyable than being stuck in al ain.\n\nLuckily the meeting went incredibly well... this will go down as one of my weirdest and quirkiest work stories.\n\nOn a separate note the Jetour T2 sucks. I have lost faith in Chinese cars. Looks like American innovation is safe for now.",
+      "content": "Soo we are back in Dubai which honestly has helped reinject me with some life due to lack of boredom ! ",
       "mood": "Spicy ",
-      "moodColor": "#a3b07c",
+      "moodColor": "#4caf7d",
       "photos": [
         {
           "id": "b347810b-06d0-4c58-8818-3324a6468521",
@@ -118,7 +118,7 @@
       "tags": [],
       "isPublished": true,
       "createdAt": "2026-03-17T10:22:43.975Z",
-      "updatedAt": "2026-03-17T21:56:31.393Z",
+      "updatedAt": "2026-03-17T11:21:55.281Z",
       "newsHeadline": "Fire breaks out near US consulate in Dubai after drone strike",
       "manualDate": "2026-03-05T11:00:00.000Z"
     },
@@ -133,15 +133,13 @@
         "placeName": "Al Ain Zoo, Khor Al Mighayra Street, Falaj Hazza'"
       },
       "title": "Back to Al Ain",
-      "content": "All of our flights out of country have gotten canceled and bombings have picked up quite a bit in Dubai. For safety reasons we are back in Al Ain but I am feeling a bit defeated as I cant seem to get a reliable way to leave with Baloo with us + feel pretty trapped in Al Ain.",
-      "mood": "Defeated",
-      "moodColor": "#d97c7c",
+      "content": "Test",
+      "mood": "Test",
       "photos": [],
       "tags": [],
       "isPublished": true,
       "createdAt": "2026-03-17T13:44:35.685Z",
-      "updatedAt": "2026-03-17T21:58:39.037Z",
-      "newsHeadline": "Death Toll Climbs to 787 as U.S. and Israel Step Up Bombings Across Iran",
+      "updatedAt": "2026-03-17T13:44:35.685Z",
       "manualDate": "2026-03-07T11:00:00.000Z"
     },
     {
@@ -174,9 +172,7 @@
         "placeName": "Milan, Lombardy, Italy"
       },
       "title": "Escaped WW3?",
-      "content": "This morning we landed safely in Milan. To celebrate getting to the hotel we took a free photo booth photo ... We are a bit exhausted due to lack of sleep and feeling a bit sick but huge relief that we managed to make it out safely. We now have 80 days total we can spend in the EU before we have to relocate. Next few days will be spent geo planning.",
-      "mood": "Relief",
-      "moodColor": "#a3b07c",
+      "content": "Did we do it?!",
       "photos": [
         {
           "id": "4db09b6d-b6cc-4feb-ac73-6b5632282939",
@@ -188,8 +184,7 @@
       "tags": [],
       "isPublished": true,
       "createdAt": "2026-03-17T13:46:30.101Z",
-      "updatedAt": "2026-03-17T22:00:48.220Z",
-      "newsHeadline": "Iran Says U.S. and Israeli Strikes Have Killed 1,348 Civilians",
+      "updatedAt": "2026-03-17T16:46:10.010Z",
       "manualDate": "2026-03-12T11:00:00.000Z"
     },
     {
@@ -203,12 +198,21 @@
         "placeName": "Rome, Roma Capitale, Lazio"
       },
       "title": "ROMA!",
-      "content": "Test",
-      "photos": [],
+      "content": "In 2015 I was briefly homeless and in that time I moved to Rome while I figured my shit out. We took the train down from Milan this morning and history repeats itself as 11 years later I find myself displaced and taking shelter in Roma once more!",
+      "mood": "Dhakshdmgu",
+      "moodColor": "#a3b07c",
+      "photos": [
+        {
+          "id": "1ae81585-fac6-427c-97c4-fe242f64bf03",
+          "dataUrl": "",
+          "timestamp": "2026-03-17T22:02:09.409Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/18617215-b0ac-40c3-b03b-6398fdba4267/1ae81585-fac6-427c-97c4-fe242f64bf03.jpg"
+        }
+      ],
       "tags": [],
       "isPublished": true,
       "createdAt": "2026-03-17T13:47:06.771Z",
-      "updatedAt": "2026-03-17T13:47:06.771Z",
+      "updatedAt": "2026-03-17T22:03:33.227Z",
       "manualDate": "2026-03-14T11:00:00.000Z"
     },
     {
@@ -246,6 +250,6 @@
       "newsHeadline": "Iran war live: Tehran confirms Larijani, Soleimani killed"
     }
   ],
-  "exportedAt": "2026-03-17T22:00:48.221Z",
+  "exportedAt": "2026-03-17T22:03:33.914Z",
   "totalEntries": 9
 }
