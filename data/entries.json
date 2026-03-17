@@ -174,7 +174,9 @@
         "placeName": "Milan, Lombardy, Italy"
       },
       "title": "Escaped WW3?",
-      "content": "Did we do it?!",
+      "content": "This morning we landed safely in Milan. To celebrate getting to the hotel we took a free photo booth photo ... We are a bit exhausted due to lack of sleep and feeling a bit sick but huge relief that we managed to make it out safely. We now have 80 days total we can spend in the EU before we have to relocate. Next few days will be spent geo planning.",
+      "mood": "Relief",
+      "moodColor": "#a3b07c",
       "photos": [
         {
           "id": "4db09b6d-b6cc-4feb-ac73-6b5632282939",
@@ -186,7 +188,8 @@
       "tags": [],
       "isPublished": true,
       "createdAt": "2026-03-17T13:46:30.101Z",
-      "updatedAt": "2026-03-17T16:46:10.010Z",
+      "updatedAt": "2026-03-17T22:00:48.220Z",
+      "newsHeadline": "Iran Says U.S. and Israeli Strikes Have Killed 1,348 Civilians",
       "manualDate": "2026-03-12T11:00:00.000Z"
     },
     {
@@ -243,6 +246,6 @@
       "newsHeadline": "Iran war live: Tehran confirms Larijani, Soleimani killed"
     }
   ],
-  "exportedAt": "2026-03-17T21:58:39.038Z",
+  "exportedAt": "2026-03-17T22:00:48.221Z",
   "totalEntries": 9
 }
