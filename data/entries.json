@@ -92,8 +92,37 @@
       "updatedAt": "2026-03-17T08:56:12.699Z",
       "newsHeadline": "Gulf Nations’ Stockpiles of Interceptors Dwindle Amid Iran’s Relentless Drone and Missile Attacks",
       "manualDate": "2026-03-03T11:00:00.000Z"
+    },
+    {
+      "id": "79d006e8-6981-409e-8a77-e83bc9da804a",
+      "timestamp": "2026-03-17T10:22:43.975Z",
+      "location": {
+        "lat": 25.2296341,
+        "lng": 55.289585,
+        "city": "Dubai",
+        "country": "United Arab Emirates",
+        "placeName": "Dubai, United Arab Emirates"
+      },
+      "title": "Closing deals mid bomb",
+      "content": "Soo we are back in Dubai which honestly has helped reinject me with some life due to lack of boredom ! ",
+      "mood": "Spicy ",
+      "moodColor": "#4caf7d",
+      "photos": [
+        {
+          "id": "b0746141-7a2f-44b9-bb09-5bdcd0d5af96",
+          "dataUrl": "",
+          "timestamp": "2026-03-17T10:20:46.382Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/79d006e8-6981-409e-8a77-e83bc9da804a/b0746141-7a2f-44b9-bb09-5bdcd0d5af96.jpg"
+        }
+      ],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-03-17T10:22:43.975Z",
+      "updatedAt": "2026-03-17T10:22:43.975Z",
+      "newsHeadline": "Fire breaks out near US consulate in Dubai after drone strike",
+      "manualDate": "2026-03-05T11:00:00.000Z"
     }
   ],
-  "exportedAt": "2026-03-17T08:56:14.113Z",
-  "totalEntries": 3
+  "exportedAt": "2026-03-17T10:22:45.298Z",
+  "totalEntries": 4
 }
