@@ -90,41 +90,23 @@ function applyParchmentSkin(map: maplibregl.Map) {
   }
 }
 
-/**
- * Build a quadratic Bézier arc between two points.
- * For short/medium distances the midpoint is offset perpendicular to the line,
- * creating a visible curve like a road. For long distances (flights) the offset
- * is minimal so the line stays roughly straight.
- * `segIndex` alternates the curve direction so the path looks organic.
- */
-function curveSegment(
-  start: number[],
-  end: number[],
-  segIndex: number,
-  steps = 20
+/** Bézier fallback for flights or when routing fails. */
+function bezierArc(
+  start: number[], end: number[], segIndex: number, steps = 20
 ): number[][] {
   const dx = end[0] - start[0];
   const dy = end[1] - start[1];
   const dist = Math.sqrt(dx * dx + dy * dy);
+  if (dist < 0.005) return [start, end];
 
-  if (dist < 0.005) return [start, end]; // essentially same point
-
-  // Rough km (1 degree ≈ 111 km at equator)
   const kmApprox = dist * 111;
-
-  // Offset factor: strong curve for drives, subtle for flights
   let factor: number;
-  if (kmApprox < 100) factor = 0.18;
-  else if (kmApprox < 500) factor = 0.12;
-  else if (kmApprox < 1500) factor = 0.07;
+  if (kmApprox < 1500) factor = 0.07;
   else factor = 0.03;
 
-  // Perpendicular direction, alternating left/right
   const sign = segIndex % 2 === 0 ? 1 : -1;
   const perpX = (-dy / dist) * dist * factor * sign;
   const perpY = (dx / dist) * dist * factor * sign;
-
-  // Control point = midpoint + perpendicular offset
   const cx = (start[0] + end[0]) / 2 + perpX;
   const cy = (start[1] + end[1]) / 2 + perpY;
 
@@ -138,6 +120,82 @@ function curveSegment(
     ]);
   }
   return points;
+}
+
+// ---------------------------------------------------------------------------
+// OSRM driving-route cache — persist across re-renders
+// ---------------------------------------------------------------------------
+const routeCache = new Map<string, number[][]>();
+
+function routeCacheKey(a: number[], b: number[]): string {
+  return `${a[0].toFixed(5)},${a[1].toFixed(5)}->${b[0].toFixed(5)},${b[1].toFixed(5)}`;
+}
+
+/** Fetch a real driving route from OSRM (free, no API key). Returns coords or null. */
+async function fetchDrivingRoute(
+  start: number[], end: number[]
+): Promise<number[][] | null> {
+  const key = routeCacheKey(start, end);
+  if (routeCache.has(key)) return routeCache.get(key)!;
+
+  try {
+    const url =
+      `https://router.project-osrm.org/route/v1/driving/` +
+      `${start[0]},${start[1]};${end[0]},${end[1]}` +
+      `?overview=full&geometries=geojson`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const coords: number[][] = data?.routes?.[0]?.geometry?.coordinates;
+    if (coords && coords.length >= 2) {
+      routeCache.set(key, coords);
+      return coords;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Build the full journey path. For segments <500 km, fetch the actual driving
+ * route from OSRM. For longer segments (flights) or on failure, use a Bézier arc.
+ */
+async function buildJourneyPath(
+  rawPts: number[][]
+): Promise<{ coords: number[][]; splits: number[] }> {
+  const coords: number[][] = [];
+  const splits: number[] = [];
+
+  for (let i = 0; i < rawPts.length; i++) {
+    splits.push(coords.length);
+    if (i === 0) {
+      coords.push(rawPts[0]);
+      continue;
+    }
+
+    const a = rawPts[i - 1];
+    const b = rawPts[i];
+    const dx = b[0] - a[0];
+    const dy = b[1] - a[1];
+    const kmApprox = Math.sqrt(dx * dx + dy * dy) * 111;
+
+    let segment: number[][] | null = null;
+
+    // Try real driving route for driveable distances
+    if (kmApprox < 500) {
+      segment = await fetchDrivingRoute(a, b);
+    }
+
+    // Fallback: Bézier arc
+    if (!segment) {
+      segment = bezierArc(a, b, i - 1);
+    }
+
+    coords.push(...segment.slice(1)); // skip duplicate start
+  }
+
+  return { coords, splits };
 }
 
 export default function WorldMap() {
@@ -239,6 +297,7 @@ export default function WorldMap() {
   useEffect(() => {
     if (!mapRef.current || !mapLoaded) return;
     const map = mapRef.current;
+    let cancelled = false;
 
     // Clear old markers
     markersRef.current.forEach((m) => m.remove());
@@ -254,46 +313,24 @@ export default function WorldMap() {
 
     if (entries.length === 0) return;
 
-    // Build curved path with split indices per entry
     const rawPts = entries.map((e) => [e.location.lng, e.location.lat]);
-    const curvedCoords: number[][] = [];
-    const splits: number[] = []; // index into curvedCoords where each entry starts
 
-    for (let i = 0; i < rawPts.length; i++) {
-      splits.push(curvedCoords.length);
-      if (i === 0) {
-        curvedCoords.push(rawPts[0]);
-      } else {
-        const seg = curveSegment(rawPts[i - 1], rawPts[i], i - 1);
-        curvedCoords.push(...seg.slice(1)); // skip duplicate start point
-      }
-    }
-
-    curvedPathRef.current = { coords: curvedCoords, splits };
-
-    const makeLineGeoJSON = (coords: number[][]) => ({
+    const makeLineGeoJSON = (c: number[][]) => ({
       type: 'Feature' as const,
       properties: {},
-      geometry: { type: 'LineString' as const, coordinates: coords },
+      geometry: { type: 'LineString' as const, coordinates: c },
     });
 
-    // Full route (for glow)
-    map.addSource('journey', {
-      type: 'geojson',
-      data: makeLineGeoJSON(curvedCoords),
-    });
+    // Start with simple straight lines immediately (no wait)
+    const straight = rawPts.slice();
+    curvedPathRef.current = {
+      coords: straight,
+      splits: straight.map((_, i) => i),
+    };
 
-    // Traveled portion — updated on activeEntryId change
-    map.addSource('journey-traveled', {
-      type: 'geojson',
-      data: makeLineGeoJSON(curvedCoords),
-    });
-
-    // Upcoming portion — updated on activeEntryId change
-    map.addSource('journey-ahead', {
-      type: 'geojson',
-      data: makeLineGeoJSON([]),
-    });
+    map.addSource('journey', { type: 'geojson', data: makeLineGeoJSON(straight) });
+    map.addSource('journey-traveled', { type: 'geojson', data: makeLineGeoJSON(straight) });
+    map.addSource('journey-ahead', { type: 'geojson', data: makeLineGeoJSON([]) });
 
     // Medieval ink — golden on dark parchment, dark brown on light
     const lineColor = isDark ? '#c9a96e' : '#3d2b1f';
@@ -351,6 +388,25 @@ export default function WorldMap() {
 
       markersRef.current.push(marker);
     });
+
+    // Async: fetch real driving routes for short segments, then upgrade the lines
+    if (rawPts.length >= 2) {
+      buildJourneyPath(rawPts).then((path) => {
+        if (cancelled) return;
+        curvedPathRef.current = path;
+
+        // Update all three sources with the routed geometry
+        const fullSrc = map.getSource('journey') as maplibregl.GeoJSONSource | undefined;
+        const travSrc = map.getSource('journey-traveled') as maplibregl.GeoJSONSource | undefined;
+        const ahdSrc = map.getSource('journey-ahead') as maplibregl.GeoJSONSource | undefined;
+
+        fullSrc?.setData(makeLineGeoJSON(path.coords));
+        travSrc?.setData(makeLineGeoJSON(path.coords));
+        ahdSrc?.setData(makeLineGeoJSON([]));
+      });
+    }
+
+    return () => { cancelled = true; };
   }, [entries, mapLoaded, selectEntry]);
 
   // Update traveled / ahead line split when active entry changes
