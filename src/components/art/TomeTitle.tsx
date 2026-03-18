@@ -39,20 +39,20 @@ export default function TomeTitle({ entries }: TomeTitleProps) {
 
   return (
     <section className="tome-title-page">
-      <div className="tome-title-page__card" data-reveal>
+      <div className="tome-title-page__card">
         <p className="tome-title-page__ornament" aria-hidden="true">
-          &#x2726; &#x2726; &#x2726;
+          &#x2726;&ensp;&#x2726;&ensp;&#x2726;
         </p>
 
         <h1 className="tome-title-page__title">War Journal</h1>
 
         <p className="tome-title-page__subtitle">
           There &amp; Back Again<br />
-          A Journey Through Conflict
+          <em>A Journey Through Conflict</em>
         </p>
 
         <p className="tome-title-page__ornament" aria-hidden="true">
-          &#x2766; &#x2726; &#x2767;
+          &#x2766;&ensp;&#x2726;&ensp;&#x2767;
         </p>
 
         {entries.length > 0 && (
@@ -74,9 +74,10 @@ export default function TomeTitle({ entries }: TomeTitleProps) {
           </div>
         )}
 
-        <p className="tome-title-page__scroll-cue">
-          Scroll to begin the journey &darr;
-        </p>
+        <div className="tome-title-page__scroll-cue">
+          <span>Scroll to begin the journey</span>
+          <div className="tome-title-page__chevron" />
+        </div>
       </div>
     </section>
   );
