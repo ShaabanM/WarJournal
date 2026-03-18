@@ -735,6 +735,7 @@ body {
   max-width: 680px;
   width: calc(100% - clamp(32px, 6vw, 80px));
   margin: 60px 0 0;
+  padding-bottom: 50vh; /* enough height to scroll into the center trigger zone */
   text-align: center;
 }
 
