@@ -96,21 +96,41 @@ function applyParchmentSkin(map: maplibregl.Map) {
 // ---------------------------------------------------------------------------
 import precomputedRoutes from '../data/routes.json';
 
-/** Bézier arc fallback for flights or segments with no pre-computed route. */
+/**
+ * Bézier arc for segments with no pre-computed route.
+ * For long flights (>1500km), produces a dramatic high arc that pushes
+ * the midpoint toward higher latitude — simulating a 3D "up and over"
+ * flight path as seen on airline route maps.
+ */
 function bezierArc(
-  start: number[], end: number[], segIndex: number, steps = 20
+  start: number[], end: number[], segIndex: number, steps = 40
 ): number[][] {
   const dx = end[0] - start[0];
   const dy = end[1] - start[1];
   const dist = Math.sqrt(dx * dx + dy * dy);
   if (dist < 0.005) return [start, end];
 
-  const factor = dist * 111 < 1500 ? 0.07 : 0.03;
-  const sign = segIndex % 2 === 0 ? 1 : -1;
-  const perpX = (-dy / dist) * dist * factor * sign;
-  const perpY = (dx / dist) * dist * factor * sign;
-  const cx = (start[0] + end[0]) / 2 + perpX;
-  const cy = (start[1] + end[1]) / 2 + perpY;
+  const kmApprox = dist * 111;
+  const midLng = (start[0] + end[0]) / 2;
+  const midLat = (start[1] + end[1]) / 2;
+
+  let cx: number, cy: number;
+
+  if (kmApprox > 1500) {
+    // FLIGHT: dramatic arc pushing north (higher latitude) to simulate altitude
+    // The longer the flight, the higher the arc
+    const heightFactor = Math.min(0.35, kmApprox / 15000 + 0.15);
+    const latBoost = dist * heightFactor;
+    // Push the control point north (positive lat) for a "climbing" arc
+    cx = midLng;
+    cy = midLat + latBoost;
+  } else {
+    // Short/medium: gentle perpendicular offset, alternating direction
+    const factor = 0.07;
+    const sign = segIndex % 2 === 0 ? 1 : -1;
+    cx = midLng + (-dy / dist) * dist * factor * sign;
+    cy = midLat + (dx / dist) * dist * factor * sign;
+  }
 
   const points: number[][] = [];
   for (let i = 0; i <= steps; i++) {
@@ -237,6 +257,28 @@ export default function WorldMap() {
   // Scroll-driven flyTo when activeEntryId changes
   useEffect(() => {
     if (!mapRef.current || !mapLoaded || !activeEntryId) return;
+
+    // Special: "journey-end" → zoom out to show the full route
+    if (activeEntryId === 'journey-end' && entries.length >= 2) {
+      if (lastFlyRef.current === 'journey-end') return;
+      lastFlyRef.current = 'journey-end';
+
+      const lngs = entries.map((e) => e.location.lng);
+      const lats = entries.map((e) => e.location.lat);
+      const bounds = new maplibregl.LngLatBounds(
+        [Math.min(...lngs), Math.min(...lats)],
+        [Math.max(...lngs), Math.max(...lats)]
+      );
+
+      mapRef.current.fitBounds(bounds, {
+        padding: { top: 80, bottom: 80, left: 80, right: 80 },
+        pitch: 30,
+        bearing: 0,
+        duration: 2500,
+        essential: true,
+      });
+      return;
+    }
 
     const entry = entries.find((e) => e.id === activeEntryId);
     if (!entry) return;

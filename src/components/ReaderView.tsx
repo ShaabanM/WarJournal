@@ -185,9 +185,13 @@ export default function ReaderView() {
               />
             ))}
 
-            {/* End marker */}
+            {/* End marker — triggers map zoom-out to full route */}
             {sorted.length > 0 && (
-              <div className="scrolly-end">
+              <div
+                className="scrolly-end"
+                data-entry-id="journey-end"
+                ref={(el) => registerRef('journey-end', el)}
+              >
                 <div className="scrolly-end__line" />
                 <p className="scrolly-end__text">
                   {latestEntry?.location.city || latestEntry?.location.country || 'Somewhere'} — the journey continues.
