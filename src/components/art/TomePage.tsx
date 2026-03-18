@@ -7,16 +7,12 @@ import type { JournalEntry } from '../../types';
 
 const WAR_DAY_ONE = new Date('2026-02-28T00:00:00');
 
-/** Convert number to Roman numerals */
 function toRoman(n: number): string {
   const vals = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
   const syms = ['M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I'];
   let result = '';
   for (let i = 0; i < vals.length; i++) {
-    while (n >= vals[i]) {
-      result += syms[i];
-      n -= vals[i];
-    }
+    while (n >= vals[i]) { result += syms[i]; n -= vals[i]; }
   }
   return result;
 }
@@ -24,10 +20,11 @@ function toRoman(n: number): string {
 interface TomePageProps {
   entry: JournalEntry;
   chapterNumber: number;
+  isActive: boolean;
   registerRef: (entryId: string, el: Element | null) => void;
 }
 
-export default function TomePage({ entry, chapterNumber, registerRef }: TomePageProps) {
+export default function TomePage({ entry, chapterNumber, isActive, registerRef }: TomePageProps) {
   const refCallback = useCallback(
     (el: HTMLDivElement | null) => registerRef(entry.id, el),
     [entry.id, registerRef]
@@ -36,25 +33,26 @@ export default function TomePage({ entry, chapterNumber, registerRef }: TomePage
   const displayDate = getEntryDisplayDate(entry);
   const dayNumber = differenceInCalendarDays(new Date(displayDate), WAR_DAY_ONE) + 1;
   const moodColor = getMoodColor(entry.mood, entry.moodColor);
-
   const photos = entry.photos.filter((p) => p.dataUrl || p.remoteUrl);
 
   const locationText = [
     entry.location.city || entry.location.placeName,
     entry.location.country,
-  ]
-    .filter(Boolean)
-    .join(', ');
+  ].filter(Boolean).join(', ');
 
   return (
     <div className="tome-page-wrap" ref={refCallback} data-entry-id={entry.id}>
-      <div className="tome-page" data-reveal>
+      <div
+        className={`tome-page ${isActive ? 'tome-page--active' : ''}`}
+        style={{ '--page-mood': moodColor } as React.CSSProperties}
+        data-reveal
+      >
         {/* Chapter heading */}
         <p className="tome-page__chapter">
           Day {dayNumber} &middot; Chapter {toRoman(chapterNumber)}
         </p>
         <p className="tome-page__date">
-          {format(new Date(displayDate), 'EEEE, the do \'of\' MMMM, yyyy')}
+          {format(new Date(displayDate), "EEEE, the do 'of' MMMM, yyyy")}
         </p>
 
         {/* Title */}
@@ -76,6 +74,9 @@ export default function TomePage({ entry, chapterNumber, registerRef }: TomePage
           </p>
         )}
 
+        {/* Ornamental rule */}
+        <div className="tome-page__rule"><span>&#x25C6;</span></div>
+
         {/* Prose with illuminated drop cap */}
         <div className="tome-page__prose">
           {entry.content.split('\n').map((paragraph, i) =>
@@ -85,7 +86,7 @@ export default function TomePage({ entry, chapterNumber, registerRef }: TomePage
 
         {/* Photos */}
         {photos.length > 0 && (
-          <div className="tome-page__photos">
+          <div className={`tome-page__photos ${photos.length > 1 ? 'tome-page__photos--multi' : ''}`}>
             {photos.map((photo) => (
               <div key={photo.id} className="tome-page__photo-wrap">
                 <img
@@ -109,10 +110,8 @@ export default function TomePage({ entry, chapterNumber, registerRef }: TomePage
           </div>
         )}
 
-        {/* Ornamental fleuron at bottom */}
-        <p className="tome-page__fleuron" aria-hidden="true">
-          &#x2766; &#x2726; &#x2767;
-        </p>
+        {/* Fleuron */}
+        <p className="tome-page__fleuron" aria-hidden="true">&#x2766; &#x2726; &#x2767;</p>
       </div>
     </div>
   );
