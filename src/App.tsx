@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { useJournalStore } from './store/journalStore';
 import { migrateFromDexie } from './utils/migrateFromDexie';
 import ReaderView from './components/ReaderView';
@@ -6,38 +6,55 @@ import AuthorView from './components/AuthorView';
 import ToastContainer from './components/Toast';
 import './App.css';
 
+const TomeReader = lazy(() => import('./components/art/TomeReader'));
+
+type Route = 'reader' | 'author' | 'art';
+
+function getRoute(): Route {
+  const h = window.location.hash;
+  if (h === '#art') return 'art';
+  if (h === '#author') return 'author';
+  return 'reader';
+}
+
 export default function App() {
-  const { viewMode, loadSettings } = useJournalStore();
+  const { loadSettings } = useJournalStore();
   const [ready, setReady] = useState(false);
+  const [route, setRoute] = useState<Route>(getRoute);
 
   useEffect(() => {
-    // Migrate settings from old IndexedDB, then load from localStorage
     migrateFromDexie().then(() => {
       loadSettings();
       setReady(true);
     });
   }, [loadSettings]);
 
-  // Check URL hash for author mode
+  // Hash-based routing with live toggle
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash === '#author') {
-      useJournalStore.getState().setViewMode('author');
-    }
+    const onHash = () => {
+      const r = getRoute();
+      setRoute(r);
+      if (r === 'author') useJournalStore.getState().setViewMode('author');
+      else if (r === 'reader') useJournalStore.getState().setViewMode('reader');
+    };
+    onHash();
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
-  // Update hash when view mode changes
-  useEffect(() => {
-    window.location.hash = viewMode === 'author' ? '#author' : '';
-  }, [viewMode]);
-
-  if (!ready) {
-    return <div className="app" />;
-  }
+  if (!ready) return <div className="app" />;
 
   return (
     <div className="app">
-      {viewMode === 'reader' ? <ReaderView /> : <AuthorView />}
+      {route === 'art' ? (
+        <Suspense fallback={<div className="app" />}>
+          <TomeReader />
+        </Suspense>
+      ) : route === 'author' ? (
+        <AuthorView />
+      ) : (
+        <ReaderView />
+      )}
       <ToastContainer />
     </div>
   );
