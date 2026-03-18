@@ -192,32 +192,45 @@ export default function WorldMap() {
     markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
 
-    // Remove old journey line
-    if (map.getLayer('journey-line')) map.removeLayer('journey-line');
-    if (map.getLayer('journey-line-glow')) map.removeLayer('journey-line-glow');
-    if (map.getSource('journey')) map.removeSource('journey');
+    // Remove old journey layers
+    for (const id of ['journey-line-solid', 'journey-line-dashed', 'journey-line-glow']) {
+      if (map.getLayer(id)) map.removeLayer(id);
+    }
+    for (const id of ['journey', 'journey-traveled', 'journey-ahead']) {
+      if (map.getSource(id)) map.removeSource(id);
+    }
 
     if (entries.length === 0) return;
 
-    // Add journey line
     const coordinates = entries.map((e) => [e.location.lng, e.location.lat]);
+    const makeLineGeoJSON = (coords: number[][]) => ({
+      type: 'Feature' as const,
+      properties: {},
+      geometry: { type: 'LineString' as const, coordinates: coords },
+    });
 
+    // Full route (for glow)
     map.addSource('journey', {
       type: 'geojson',
-      data: {
-        type: 'Feature',
-        properties: {},
-        geometry: {
-          type: 'LineString',
-          coordinates,
-        },
-      },
+      data: makeLineGeoJSON(coordinates),
+    });
+
+    // Traveled portion (start → active entry) — updated on activeEntryId change
+    map.addSource('journey-traveled', {
+      type: 'geojson',
+      data: makeLineGeoJSON(coordinates),
+    });
+
+    // Upcoming portion (active entry → end) — updated on activeEntryId change
+    map.addSource('journey-ahead', {
+      type: 'geojson',
+      data: makeLineGeoJSON([]),
     });
 
     // Medieval ink — golden on dark parchment, dark brown on light
     const lineColor = isDark ? '#c9a96e' : '#3d2b1f';
 
-    // Wide outer glow — ink bleed on parchment
+    // Wide outer glow on full route — ink bleed on parchment
     map.addLayer({
       id: 'journey-line-glow',
       type: 'line',
@@ -225,16 +238,29 @@ export default function WorldMap() {
       paint: {
         'line-color': lineColor,
         'line-width': 14,
-        'line-opacity': 0.25,
+        'line-opacity': 0.15,
         'line-blur': 10,
       },
     });
 
-    // Main line — inked path on parchment
+    // Dashed "ahead" line — the journey yet to be read
     map.addLayer({
-      id: 'journey-line',
+      id: 'journey-line-dashed',
       type: 'line',
-      source: 'journey',
+      source: 'journey-ahead',
+      paint: {
+        'line-color': lineColor,
+        'line-width': 2,
+        'line-opacity': 0.35,
+        'line-dasharray': [2, 3],
+      },
+    });
+
+    // Solid "traveled" line — the journey already read
+    map.addLayer({
+      id: 'journey-line-solid',
+      type: 'line',
+      source: 'journey-traveled',
       paint: {
         'line-color': lineColor,
         'line-width': 3.5,
@@ -258,6 +284,39 @@ export default function WorldMap() {
       markersRef.current.push(marker);
     });
   }, [entries, mapLoaded, selectEntry]);
+
+  // Update traveled / ahead line split when active entry changes
+  useEffect(() => {
+    if (!mapRef.current || !mapLoaded || entries.length < 2) return;
+    const map = mapRef.current;
+
+    const traveledSrc = map.getSource('journey-traveled') as maplibregl.GeoJSONSource | undefined;
+    const aheadSrc = map.getSource('journey-ahead') as maplibregl.GeoJSONSource | undefined;
+    if (!traveledSrc || !aheadSrc) return;
+
+    const coordinates = entries.map((e) => [e.location.lng, e.location.lat]);
+    const activeIdx = activeEntryId
+      ? entries.findIndex((e) => e.id === activeEntryId)
+      : -1;
+
+    // Split point: include the active entry in "traveled", rest in "ahead"
+    const splitAt = activeIdx >= 0 ? activeIdx + 1 : coordinates.length;
+
+    const traveledCoords = coordinates.slice(0, splitAt);
+    const aheadCoords = splitAt < coordinates.length ? coordinates.slice(splitAt - 1) : [];
+
+    traveledSrc.setData({
+      type: 'Feature',
+      properties: {},
+      geometry: { type: 'LineString', coordinates: traveledCoords },
+    });
+
+    aheadSrc.setData({
+      type: 'Feature',
+      properties: {},
+      geometry: { type: 'LineString', coordinates: aheadCoords.length >= 2 ? aheadCoords : [] },
+    });
+  }, [activeEntryId, entries, mapLoaded]);
 
   // Highlight active / selected marker
   useEffect(() => {
