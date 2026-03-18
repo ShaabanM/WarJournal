@@ -257,8 +257,28 @@
       "createdAt": "2026-03-17T21:49:59.035Z",
       "updatedAt": "2026-03-17T21:50:13.886Z",
       "newsHeadline": "Iran war live: Tehran confirms Larijani, Soleimani killed"
+    },
+    {
+      "id": "ce1aab03-87e9-40ca-9dec-c284154db53b",
+      "timestamp": "2026-03-18T19:47:41.549Z",
+      "location": {
+        "lat": 41.90512655184929,
+        "lng": 12.473872334787433,
+        "placeName": "Ponte Cavour, Campo Marzio, Municipio Roma I",
+        "city": "Rome",
+        "country": "Italy"
+      },
+      "title": "Bad burgers in Rome ",
+      "content": "Fun fact about me, I don’t actually like McDonald’s. Yet, despite being in Rome—with a credit card that lets me buy anything I want in one of the food capitals of the world—I still find myself eating a $4 cheeseburger from McDonald’s that I don’t even enjoy. It also goes against my attempt to be healthier.\n\nI found myself wondering why that is. I think the answer is that I’m craving familiarity. In a time of moving, uncertainty, and not knowing where we’re going to live, even something I don’t really like can feel comforting. It’s a small taste of something familiar—a way to fill that in-between space while everything else is changing.",
+      "mood": "Tired",
+      "moodColor": "#d4a574",
+      "photos": [],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-03-18T19:47:41.549Z",
+      "updatedAt": "2026-03-18T19:47:41.549Z"
     }
   ],
-  "exportedAt": "2026-03-17T22:50:44.066Z",
-  "totalEntries": 9
+  "exportedAt": "2026-03-18T19:47:41.561Z",
+  "totalEntries": 10
 }
