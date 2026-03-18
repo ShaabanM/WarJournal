@@ -90,11 +90,63 @@ function applyParchmentSkin(map: maplibregl.Map) {
   }
 }
 
+/**
+ * Build a quadratic Bézier arc between two points.
+ * For short/medium distances the midpoint is offset perpendicular to the line,
+ * creating a visible curve like a road. For long distances (flights) the offset
+ * is minimal so the line stays roughly straight.
+ * `segIndex` alternates the curve direction so the path looks organic.
+ */
+function curveSegment(
+  start: number[],
+  end: number[],
+  segIndex: number,
+  steps = 20
+): number[][] {
+  const dx = end[0] - start[0];
+  const dy = end[1] - start[1];
+  const dist = Math.sqrt(dx * dx + dy * dy);
+
+  if (dist < 0.005) return [start, end]; // essentially same point
+
+  // Rough km (1 degree ≈ 111 km at equator)
+  const kmApprox = dist * 111;
+
+  // Offset factor: strong curve for drives, subtle for flights
+  let factor: number;
+  if (kmApprox < 100) factor = 0.18;
+  else if (kmApprox < 500) factor = 0.12;
+  else if (kmApprox < 1500) factor = 0.07;
+  else factor = 0.03;
+
+  // Perpendicular direction, alternating left/right
+  const sign = segIndex % 2 === 0 ? 1 : -1;
+  const perpX = (-dy / dist) * dist * factor * sign;
+  const perpY = (dx / dist) * dist * factor * sign;
+
+  // Control point = midpoint + perpendicular offset
+  const cx = (start[0] + end[0]) / 2 + perpX;
+  const cy = (start[1] + end[1]) / 2 + perpY;
+
+  const points: number[][] = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const u = 1 - t;
+    points.push([
+      u * u * start[0] + 2 * u * t * cx + t * t * end[0],
+      u * u * start[1] + 2 * u * t * cy + t * t * end[1],
+    ]);
+  }
+  return points;
+}
+
 export default function WorldMap() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
   const lastFlyRef = useRef<string>('');
+  // Curved path + split indices for traveled/ahead line updates
+  const curvedPathRef = useRef<{ coords: number[][]; splits: number[] }>({ coords: [], splits: [] });
   const entries = useSortedEntries();
   const { mapCenter, mapZoom, selectEntry, selectedEntry, activeEntryId, settings } = useJournalStore();
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -202,7 +254,23 @@ export default function WorldMap() {
 
     if (entries.length === 0) return;
 
-    const coordinates = entries.map((e) => [e.location.lng, e.location.lat]);
+    // Build curved path with split indices per entry
+    const rawPts = entries.map((e) => [e.location.lng, e.location.lat]);
+    const curvedCoords: number[][] = [];
+    const splits: number[] = []; // index into curvedCoords where each entry starts
+
+    for (let i = 0; i < rawPts.length; i++) {
+      splits.push(curvedCoords.length);
+      if (i === 0) {
+        curvedCoords.push(rawPts[0]);
+      } else {
+        const seg = curveSegment(rawPts[i - 1], rawPts[i], i - 1);
+        curvedCoords.push(...seg.slice(1)); // skip duplicate start point
+      }
+    }
+
+    curvedPathRef.current = { coords: curvedCoords, splits };
+
     const makeLineGeoJSON = (coords: number[][]) => ({
       type: 'Feature' as const,
       properties: {},
@@ -212,16 +280,16 @@ export default function WorldMap() {
     // Full route (for glow)
     map.addSource('journey', {
       type: 'geojson',
-      data: makeLineGeoJSON(coordinates),
+      data: makeLineGeoJSON(curvedCoords),
     });
 
-    // Traveled portion (start → active entry) — updated on activeEntryId change
+    // Traveled portion — updated on activeEntryId change
     map.addSource('journey-traveled', {
       type: 'geojson',
-      data: makeLineGeoJSON(coordinates),
+      data: makeLineGeoJSON(curvedCoords),
     });
 
-    // Upcoming portion (active entry → end) — updated on activeEntryId change
+    // Upcoming portion — updated on activeEntryId change
     map.addSource('journey-ahead', {
       type: 'geojson',
       data: makeLineGeoJSON([]),
@@ -294,16 +362,19 @@ export default function WorldMap() {
     const aheadSrc = map.getSource('journey-ahead') as maplibregl.GeoJSONSource | undefined;
     if (!traveledSrc || !aheadSrc) return;
 
-    const coordinates = entries.map((e) => [e.location.lng, e.location.lat]);
+    const { coords, splits } = curvedPathRef.current;
+    if (coords.length === 0) return;
+
     const activeIdx = activeEntryId
       ? entries.findIndex((e) => e.id === activeEntryId)
       : -1;
 
-    // Split point: include the active entry in "traveled", rest in "ahead"
-    const splitAt = activeIdx >= 0 ? activeIdx + 1 : coordinates.length;
+    // Split at the curved-coords index for the entry AFTER the active one
+    const nextEntryIdx = activeIdx >= 0 ? activeIdx + 1 : entries.length;
+    const splitAt = nextEntryIdx < splits.length ? splits[nextEntryIdx] : coords.length;
 
-    const traveledCoords = coordinates.slice(0, splitAt);
-    const aheadCoords = splitAt < coordinates.length ? coordinates.slice(splitAt - 1) : [];
+    const traveledCoords = coords.slice(0, splitAt);
+    const aheadCoords = splitAt < coords.length ? coords.slice(splitAt - 1) : [];
 
     traveledSrc.setData({
       type: 'Feature',
