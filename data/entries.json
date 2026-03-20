@@ -304,8 +304,9 @@
       "tags": [],
       "isPublished": true,
       "createdAt": "2026-03-20T06:54:49.259Z",
-      "updatedAt": "2026-03-20T07:20:54.840Z",
-      "newsHeadline": "Iran war escalates, energy prices spike after Israeli strike on South Pars gas field"
+      "updatedAt": "2026-03-20T18:17:52.334Z",
+      "newsHeadline": "Iran war escalates, energy prices spike after Israeli strike on South Pars gas field",
+      "manualDate": "2026-03-19T11:00:00.000Z"
     },
     {
       "id": "21320397-9a78-4d6e-b75c-5bdb8cfd6e53",
@@ -336,6 +337,6 @@
       "newsHeadline": "Supreme leader denounces US-Israel ‘delusion’ of domination"
     }
   ],
-  "exportedAt": "2026-03-20T18:17:34.731Z",
+  "exportedAt": "2026-03-20T18:17:52.337Z",
   "totalEntries": 12
 }
