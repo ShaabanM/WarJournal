@@ -290,23 +290,24 @@
         "country": "Italy"
       },
       "title": "Gaslighting myself to Vacation",
-      "content": "Test",
-      "mood": "!",
+      "content": "About to head to my two favorite cities in Europe for Eid vacation yet I feel very unexcited. In the middle of all this chaos and forced travel taking a break to pleasure travel feels a bit absurd like we are trying to gaslight ourselves into pretending this whole thing is a vacation. Alas… we shall try to actually get some R&R and make the most of this trip.  ",
+      "mood": "Tired",
       "moodColor": "#c9b458",
       "photos": [
         {
-          "id": "f3a14e19-e65a-4785-a474-202bc6f05251",
+          "id": "1b145d85-060f-42e3-8af7-48950d865d19",
           "dataUrl": "",
-          "timestamp": "2026-03-20T06:54:24.102Z",
-          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/c58b8266-3443-4fc7-8014-751d1fa6b53f/f3a14e19-e65a-4785-a474-202bc6f05251.jpg"
+          "timestamp": "2026-03-20T07:18:51.837Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/c58b8266-3443-4fc7-8014-751d1fa6b53f/1b145d85-060f-42e3-8af7-48950d865d19.jpg"
         }
       ],
       "tags": [],
       "isPublished": true,
       "createdAt": "2026-03-20T06:54:49.259Z",
-      "updatedAt": "2026-03-20T06:54:49.259Z"
+      "updatedAt": "2026-03-20T07:20:54.840Z",
+      "newsHeadline": "Iran war escalates, energy prices spike after Israeli strike on South Pars gas field"
     }
   ],
-  "exportedAt": "2026-03-20T06:54:52.576Z",
+  "exportedAt": "2026-03-20T07:20:54.850Z",
   "totalEntries": 11
 }
