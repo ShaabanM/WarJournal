@@ -278,8 +278,35 @@
       "createdAt": "2026-03-18T19:47:41.549Z",
       "updatedAt": "2026-03-18T19:51:48.862Z",
       "newsHeadline": "'Extensive damage' at Qatar industrial site as Iran retaliates for strike on gas field"
+    },
+    {
+      "id": "c58b8266-3443-4fc7-8014-751d1fa6b53f",
+      "timestamp": "2026-03-20T06:54:49.259Z",
+      "location": {
+        "lat": 41.79554790726276,
+        "lng": 12.25578694405346,
+        "placeName": "Via Leonardo da Vinci, Fiumicino, Roma Capitale",
+        "city": "Fiumicino",
+        "country": "Italy"
+      },
+      "title": "Gaslighting myself to Vacation",
+      "content": "Test",
+      "mood": "!",
+      "moodColor": "#c9b458",
+      "photos": [
+        {
+          "id": "f3a14e19-e65a-4785-a474-202bc6f05251",
+          "dataUrl": "",
+          "timestamp": "2026-03-20T06:54:24.102Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/c58b8266-3443-4fc7-8014-751d1fa6b53f/f3a14e19-e65a-4785-a474-202bc6f05251.jpg"
+        }
+      ],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-03-20T06:54:49.259Z",
+      "updatedAt": "2026-03-20T06:54:49.259Z"
     }
   ],
-  "exportedAt": "2026-03-18T19:51:48.865Z",
-  "totalEntries": 10
+  "exportedAt": "2026-03-20T06:54:52.576Z",
+  "totalEntries": 11
 }
