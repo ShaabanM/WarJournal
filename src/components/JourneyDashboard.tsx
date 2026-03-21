@@ -69,25 +69,15 @@ export default function JourneyDashboard({ onClose, totalDistance, cityCount, co
   });
   const countryList = Object.entries(countryCounts).sort((a, b) => b[1] - a[1]);
 
-  // City stats with clustering
+  // City stats — group by exact city name (no distance clustering)
   const cityEntries: Record<string, { count: number; country: string }> = {};
-  const cityClusters: { lat: number; lng: number; name: string; country: string }[] = [];
   for (const e of entries) {
     const name = e.location.city || e.location.placeName || '';
     const country = e.location.country || '';
     if (!name) continue;
-    const nearby = cityClusters.find((c) => {
-      const dlat = c.lat - e.location.lat;
-      const dlng = c.lng - e.location.lng;
-      return Math.sqrt(dlat * dlat + dlng * dlng) < 0.25;
-    });
-    if (nearby) {
-      cityEntries[nearby.name] = {
-        count: (cityEntries[nearby.name]?.count || 0) + 1,
-        country: nearby.country,
-      };
+    if (cityEntries[name]) {
+      cityEntries[name].count += 1;
     } else {
-      cityClusters.push({ lat: e.location.lat, lng: e.location.lng, name, country });
       cityEntries[name] = { count: 1, country };
     }
   }
