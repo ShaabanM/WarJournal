@@ -34,7 +34,7 @@ interface JournalState {
   settings: AppSettings;
   isLoading: boolean;
   isSaving: boolean;
-  viewMode: 'reader' | 'author';
+  viewMode: 'reader' | 'author' | 'map';
   mapCenter: [number, number];
   mapZoom: number;
   searchQuery: string;
@@ -50,7 +50,7 @@ interface JournalState {
   updateEntry: (entry: JournalEntry) => Promise<void>;
   deleteEntry: (id: string) => Promise<void>;
   selectEntry: (entry: JournalEntry | null) => void;
-  setViewMode: (mode: 'reader' | 'author') => void;
+  setViewMode: (mode: 'reader' | 'author' | 'map') => void;
   setMapCenter: (center: [number, number]) => void;
   setMapZoom: (zoom: number) => void;
   setSearchQuery: (query: string) => void;
