@@ -156,11 +156,14 @@ interface MissingSegment {
   end: number[];
 }
 
-/** Check if a pre-computed route's endpoints still match the current entry coords */
+/** Check if a pre-computed route's endpoints still match the current entry coords.
+ *  Tolerance scales with route length — a 1km shift matters on a 5km route but not on 150km. */
 function routeEndpointsMatch(route: number[][], startLng: number, startLat: number, endLng: number, endLat: number): boolean {
-  const threshold = 0.005; // ~500m tolerance
   const s = route[0];
   const e = route[route.length - 1];
+  const routeSpan = Math.sqrt((e[0] - s[0]) ** 2 + (e[1] - s[1]) ** 2);
+  // 5% of route length, clamped between 500m and 5km
+  const threshold = Math.max(0.005, Math.min(0.05, routeSpan * 0.05));
   return (
     Math.abs(s[0] - startLng) < threshold &&
     Math.abs(s[1] - startLat) < threshold &&
