@@ -156,9 +156,23 @@ interface MissingSegment {
   end: number[];
 }
 
+/** Check if a pre-computed route's endpoints still match the current entry coords */
+function routeEndpointsMatch(route: number[][], startLng: number, startLat: number, endLng: number, endLat: number): boolean {
+  const threshold = 0.005; // ~500m tolerance
+  const s = route[0];
+  const e = route[route.length - 1];
+  return (
+    Math.abs(s[0] - startLng) < threshold &&
+    Math.abs(s[1] - startLat) < threshold &&
+    Math.abs(e[0] - endLng) < threshold &&
+    Math.abs(e[1] - endLat) < threshold
+  );
+}
+
 /**
  * Build the full journey path synchronously.
  * Uses pre-computed routes, runtime-cached routes, then Bézier fallback.
+ * Detects stale routes (entry coords changed) and queues re-fetch.
  * Returns which short-distance segments still need fetching.
  */
 function buildJourneyPath(
@@ -176,15 +190,18 @@ function buildJourneyPath(
       continue;
     }
 
+    const a = [entries[i - 1].location.lng, entries[i - 1].location.lat];
+    const b = [entries[i].location.lng, entries[i].location.lat];
     const key = `${entries[i - 1].id}:${entries[i].id}`;
-    const route = precomputed[key] || runtimeRouteCache[key];
 
-    if (route && route.length >= 2) {
+    // Use cached route only if endpoints still match current entry coords
+    const route = runtimeRouteCache[key] || precomputed[key];
+    const valid = route && route.length >= 2 && routeEndpointsMatch(route, a[0], a[1], b[0], b[1]);
+
+    if (valid) {
       coords.push(...route.slice(1));
     } else {
       // Bézier fallback (renders immediately — may be replaced later)
-      const a = [entries[i - 1].location.lng, entries[i - 1].location.lat];
-      const b = [entries[i].location.lng, entries[i].location.lat];
       const seg = bezierArc(a, b, i - 1);
       coords.push(...seg.slice(1));
 
@@ -309,19 +326,23 @@ export default function WorldMap() {
       if (lastFlyRef.current === 'journey-end') return;
       lastFlyRef.current = 'journey-end';
 
-      const lngs = entries.map((e) => e.location.lng);
-      const lats = entries.map((e) => e.location.lat);
+      // Include all entry locations AND the Bézier arc control points
+      // so flight arcs aren't clipped by the viewport
+      const { coords } = curvedPathRef.current;
+      const allLngs = coords.map((c) => c[0]);
+      const allLats = coords.map((c) => c[1]);
       const bounds = new maplibregl.LngLatBounds(
-        [Math.min(...lngs), Math.min(...lats)],
-        [Math.max(...lngs), Math.max(...lats)]
+        [Math.min(...allLngs), Math.min(...allLats)],
+        [Math.max(...allLngs), Math.max(...allLats)]
       );
 
       mapRef.current.fitBounds(bounds, {
-        padding: { top: 80, bottom: 80, left: 80, right: 80 },
-        pitch: 30,
+        padding: { top: 100, bottom: 100, left: 100, right: 100 },
+        pitch: 0,
         bearing: 0,
         duration: 2500,
         essential: true,
+        maxZoom: 8,
       });
       return;
     }
@@ -329,34 +350,43 @@ export default function WorldMap() {
     const entry = entries.find((e) => e.id === activeEntryId);
     if (!entry) return;
 
-    const key = `${entry.location.lng},${entry.location.lat}`;
-    if (key === lastFlyRef.current) return; // skip duplicate
-    lastFlyRef.current = key;
-
-    // Pick a zoom level based on distance to the previous entry.
-    // Very short legs (< 10 km) need a high zoom so the driving route
-    // curvature is visible instead of looking like a straight line.
     const idx = entries.indexOf(entry);
-    let targetZoom = 6;
+
+    // Fit the map to show both the current entry AND the previous one,
+    // so the route segment between them is always visible.
     if (idx > 0) {
       const prev = entries[idx - 1].location;
-      const dx = entry.location.lng - prev.lng;
-      const dy = entry.location.lat - prev.lat;
-      const kmApprox = Math.sqrt(dx * dx + dy * dy) * 111;
-      if (kmApprox < 5) targetZoom = 14;
-      else if (kmApprox < 20) targetZoom = 12;
-      else if (kmApprox < 80) targetZoom = 10;
-      else if (kmApprox < 200) targetZoom = 8;
-    }
+      const flyKey = `${idx}:${entry.location.lng},${entry.location.lat}`;
+      if (flyKey === lastFlyRef.current) return;
+      lastFlyRef.current = flyKey;
 
-    mapRef.current.flyTo({
-      center: [entry.location.lng, entry.location.lat],
-      zoom: Math.max(mapRef.current.getZoom(), targetZoom),
-      pitch: 40 + Math.random() * 15,
-      bearing: -15 + Math.random() * 30,
-      duration: 1800,
-      essential: true,
-    });
+      const bounds = new maplibregl.LngLatBounds(
+        [Math.min(entry.location.lng, prev.lng), Math.min(entry.location.lat, prev.lat)],
+        [Math.max(entry.location.lng, prev.lng), Math.max(entry.location.lat, prev.lat)]
+      );
+
+      mapRef.current.fitBounds(bounds, {
+        padding: { top: 100, bottom: 100, left: 100, right: 100 },
+        pitch: 40 + Math.random() * 15,
+        bearing: -15 + Math.random() * 30,
+        duration: 1800,
+        essential: true,
+        maxZoom: 14,
+      });
+    } else {
+      const flyKey = `${idx}:${entry.location.lng},${entry.location.lat}`;
+      if (flyKey === lastFlyRef.current) return;
+      lastFlyRef.current = flyKey;
+
+      mapRef.current.flyTo({
+        center: [entry.location.lng, entry.location.lat],
+        zoom: 10,
+        pitch: 40 + Math.random() * 15,
+        bearing: -15 + Math.random() * 30,
+        duration: 1800,
+        essential: true,
+      });
+    }
   }, [activeEntryId, entries, mapLoaded]);
 
   // Counter to trigger a rebuild after background routes arrive
