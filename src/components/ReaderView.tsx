@@ -1,9 +1,10 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { BookOpen, Search, X, Sun, Moon } from 'lucide-react';
 import { useJournalStore, useSortedEntries, getEntryDisplayDate } from '../store/journalStore';
 import WorldMap from './WorldMap';
 import ScrollyEntry from './ScrollyEntry';
 import Timeline from './Timeline';
+import JourneyDashboard from './JourneyDashboard';
 import { useScrollObserver } from '../hooks/useScrollObserver';
 import { getTotalDistance } from '../utils/geo';
 
@@ -17,6 +18,7 @@ export default function ReaderView() {
   const sorted = useSortedEntries();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const entryRefsMap = useRef<Map<string, HTMLElement>>(new Map());
+  const [showDashboard, setShowDashboard] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -127,7 +129,11 @@ export default function ReaderView() {
           onEntryClick={scrollToEntry}
         />
 
-        <div className="scrolly-sidebar__stats">
+        <div
+          className="scrolly-sidebar__stats scrolly-sidebar__stats--clickable"
+          onClick={() => setShowDashboard(true)}
+          title="View journey dashboard"
+        >
           <div className="sidebar-stat">
             <span className="sidebar-stat__value">{cities.length}</span>
             <span className="sidebar-stat__label">cities</span>
@@ -142,6 +148,16 @@ export default function ReaderView() {
           </div>
         </div>
       </aside>
+
+      {/* Journey Dashboard Modal */}
+      {showDashboard && (
+        <JourneyDashboard
+          onClose={() => setShowDashboard(false)}
+          totalDistance={totalDistance}
+          cityCount={cities.length}
+          countryCount={countries.size}
+        />
+      )}
 
       {/* Main scroll area */}
       <main className="scrolly-main" ref={scrollContainerRef}>
