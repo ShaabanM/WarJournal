@@ -144,16 +144,30 @@ function bezierArc(
   return points;
 }
 
+/** Runtime route cache — survives re-renders, cleared on page reload */
+const runtimeRouteCache: Record<string, number[][]> = {};
+
+/** Segments we've already started fetching (avoid duplicate requests) */
+const fetchingRoutes = new Set<string>();
+
+interface MissingSegment {
+  key: string;
+  start: number[];
+  end: number[];
+}
+
 /**
  * Build the full journey path synchronously.
- * Uses pre-computed driving routes for short segments, Bézier for flights.
+ * Uses pre-computed routes, runtime-cached routes, then Bézier fallback.
+ * Returns which short-distance segments still need fetching.
  */
 function buildJourneyPath(
   entries: JournalEntry[]
-): { coords: number[][]; splits: number[] } {
+): { coords: number[][]; splits: number[]; missing: MissingSegment[] } {
   const coords: number[][] = [];
   const splits: number[] = [];
-  const routes = precomputedRoutes as Record<string, number[][]>;
+  const missing: MissingSegment[] = [];
+  const precomputed = precomputedRoutes as Record<string, number[][]>;
 
   for (let i = 0; i < entries.length; i++) {
     splits.push(coords.length);
@@ -163,21 +177,53 @@ function buildJourneyPath(
     }
 
     const key = `${entries[i - 1].id}:${entries[i].id}`;
-    const route = routes[key];
+    const route = precomputed[key] || runtimeRouteCache[key];
 
     if (route && route.length >= 2) {
-      // Use pre-computed driving route
       coords.push(...route.slice(1));
     } else {
-      // Fallback: Bézier arc (flights, new entries without routes)
+      // Bézier fallback (renders immediately — may be replaced later)
       const a = [entries[i - 1].location.lng, entries[i - 1].location.lat];
       const b = [entries[i].location.lng, entries[i].location.lat];
       const seg = bezierArc(a, b, i - 1);
       coords.push(...seg.slice(1));
+
+      // Queue for background fetch if short enough for a driving route
+      const dx = b[0] - a[0];
+      const dy = b[1] - a[1];
+      const kmApprox = Math.sqrt(dx * dx + dy * dy) * 111;
+      if (kmApprox < 500 && !fetchingRoutes.has(key)) {
+        missing.push({ key, start: a, end: b });
+      }
     }
   }
 
-  return { coords, splits };
+  return { coords, splits, missing };
+}
+
+/**
+ * Fetch a driving route from OSRM in the background.
+ * Returns simplified coordinates (~150 points) or null on failure.
+ */
+async function fetchOSRMRoute(start: number[], end: number[]): Promise<number[][] | null> {
+  try {
+    const url = `https://router.project-osrm.org/route/v1/driving/${start[0]},${start[1]};${end[0]},${end[1]}?overview=full&geometries=geojson`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const full: number[][] = data.routes?.[0]?.geometry?.coordinates;
+    if (!full || full.length < 2) return null;
+
+    // Simplify to ~150 points
+    const step = Math.max(1, Math.floor(full.length / 150));
+    const simplified = full.filter((_: number[], i: number) => i % step === 0);
+    if (simplified[simplified.length - 1] !== full[full.length - 1]) {
+      simplified.push(full[full.length - 1]);
+    }
+    return simplified;
+  } catch {
+    return null;
+  }
 }
 
 export default function WorldMap() {
@@ -313,6 +359,9 @@ export default function WorldMap() {
     });
   }, [activeEntryId, entries, mapLoaded]);
 
+  // Counter to trigger a rebuild after background routes arrive
+  const [routeGeneration, setRouteGeneration] = useState(0);
+
   // Draw journey line and markers
   useEffect(() => {
     if (!mapRef.current || !mapLoaded) return;
@@ -332,9 +381,24 @@ export default function WorldMap() {
 
     if (entries.length === 0) return;
 
-    // Build path synchronously from pre-computed routes + Bézier fallback
+    // Build path — renders immediately with Bézier fallbacks
     const path = buildJourneyPath(entries);
     curvedPathRef.current = path;
+
+    // Background-fetch any missing driving routes, then rebuild seamlessly
+    if (path.missing.length > 0) {
+      const pending = path.missing.map(({ key, start, end }) => {
+        fetchingRoutes.add(key);
+        return fetchOSRMRoute(start, end).then((route) => {
+          if (route) runtimeRouteCache[key] = route;
+          fetchingRoutes.delete(key);
+        });
+      });
+      Promise.all(pending).then(() => {
+        // Bump generation → triggers this effect again with cached routes
+        setRouteGeneration((g) => g + 1);
+      });
+    }
 
     const makeLineGeoJSON = (c: number[][]) => ({
       type: 'Feature' as const,
@@ -403,7 +467,8 @@ export default function WorldMap() {
       markersRef.current.push(marker);
     });
 
-  }, [entries, mapLoaded, selectEntry]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entries, mapLoaded, selectEntry, routeGeneration]);
 
   // Update traveled / ahead line split when active entry changes
   useEffect(() => {
