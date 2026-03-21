@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Globe, BarChart3, Sun, Moon, Navigation, Heart, MapPin } from 'lucide-react';
 import { useJournalStore, useSortedEntries, getEntryDisplayDate } from '../store/journalStore';
 import WorldMap from './WorldMap';
@@ -18,9 +18,11 @@ export default function MapView() {
     loadEntries();
   }, [loadEntries, loadSettings]);
 
-  // Set active to last entry so entire route shows as traveled
+  // Set active to last entry so entire route shows as traveled (once)
+  const didSetActive = useRef(false);
   useEffect(() => {
-    if (sorted.length > 0) {
+    if (sorted.length > 0 && !didSetActive.current) {
+      didSetActive.current = true;
       setActiveEntryId(sorted[sorted.length - 1].id);
     }
   }, [sorted, setActiveEntryId]);
