@@ -287,9 +287,25 @@ export default function WorldMap() {
     if (key === lastFlyRef.current) return; // skip duplicate
     lastFlyRef.current = key;
 
+    // Pick a zoom level based on distance to the previous entry.
+    // Very short legs (< 10 km) need a high zoom so the driving route
+    // curvature is visible instead of looking like a straight line.
+    const idx = entries.indexOf(entry);
+    let targetZoom = 6;
+    if (idx > 0) {
+      const prev = entries[idx - 1].location;
+      const dx = entry.location.lng - prev.lng;
+      const dy = entry.location.lat - prev.lat;
+      const kmApprox = Math.sqrt(dx * dx + dy * dy) * 111;
+      if (kmApprox < 5) targetZoom = 14;
+      else if (kmApprox < 20) targetZoom = 12;
+      else if (kmApprox < 80) targetZoom = 10;
+      else if (kmApprox < 200) targetZoom = 8;
+    }
+
     mapRef.current.flyTo({
       center: [entry.location.lng, entry.location.lat],
-      zoom: Math.max(mapRef.current.getZoom(), 6),
+      zoom: Math.max(mapRef.current.getZoom(), targetZoom),
       pitch: 40 + Math.random() * 15,
       bearing: -15 + Math.random() * 30,
       duration: 1800,
