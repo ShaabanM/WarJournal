@@ -199,11 +199,10 @@
       "id": "18617215-b0ac-40c3-b03b-6398fdba4267",
       "timestamp": "2026-03-17T13:47:06.771Z",
       "location": {
-        "lat": 41.8933203,
-        "lng": 12.4829321,
-        "city": "Rome",
-        "country": "Italy",
-        "placeName": "Rome, Roma Capitale, Lazio"
+        "lat": 41.903411,
+        "lng": 12.4528527,
+        "country": "Vatican City",
+        "placeName": "Vatican City"
       },
       "title": "ROMA!",
       "content": "In 2015 I was briefly homeless and in that time I moved to Rome while I figured my shit out. We took the train down from Milan this morning and history repeats itself as 11 years later I find myself displaced and taking shelter in Roma once more!",
@@ -220,7 +219,7 @@
       "tags": [],
       "isPublished": true,
       "createdAt": "2026-03-17T13:47:06.771Z",
-      "updatedAt": "2026-03-17T22:40:16.069Z",
+      "updatedAt": "2026-03-21T12:52:22.588Z",
       "newsHeadline": "Trump urges countries to send warships to help secure Strait of Hormuz",
       "manualDate": "2026-03-14T11:00:00.000Z"
     },
@@ -337,6 +336,6 @@
       "newsHeadline": "Supreme leader denounces US-Israel ‘delusion’ of domination"
     }
   ],
-  "exportedAt": "2026-03-20T18:17:52.337Z",
+  "exportedAt": "2026-03-21T12:52:22.590Z",
   "totalEntries": 12
 }
