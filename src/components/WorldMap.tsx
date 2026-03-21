@@ -92,7 +92,7 @@ function applyParchmentSkin(map: maplibregl.Map) {
 
 // ---------------------------------------------------------------------------
 // Pre-computed driving routes (fetched from OSRM at publish time).
-// Keyed by "entryId1:entryId2". Flights (>500km) have no route — use Bézier.
+// Keyed by "entryId1:entryId2". Flights (>650km) have no route — use Bézier.
 // ---------------------------------------------------------------------------
 import precomputedRoutes from '../data/routes.json';
 
@@ -209,7 +209,7 @@ function buildJourneyPath(
       const dx = b[0] - a[0];
       const dy = b[1] - a[1];
       const kmApprox = Math.sqrt(dx * dx + dy * dy) * 111;
-      if (kmApprox < 500 && !fetchingRoutes.has(key)) {
+      if (kmApprox < 650 && !fetchingRoutes.has(key)) {
         missing.push({ key, start: a, end: b });
       }
     }
