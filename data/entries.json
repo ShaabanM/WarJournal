@@ -374,17 +374,24 @@
         "country": "Austria"
       },
       "title": "Vienna is Pure Livable Magic ",
-      "content": "After arriving in Vienna and going for a beautiful evening walk I feel so extremely relaxed. This city is somehow even better than I remember it, walking through the streets at night had such a calming effect that simply feels unreal. \n\nI would very much love to permanently relocate here and can see it being such a huge net positive for my life. Unfortunately there is no easy way to do so.",
+      "content": "After arriving in Vienna and going for a beautiful evening walk I feel so extremely relaxed. This city is somehow even better than I remember it, walking through the streets at night had such a calming effect that simply feels unreal. \n\nI would very much love to permanently relocate here and can see it being such a huge net positive for my life. Unfortunately there is no easy way to do so.\n\nI’m confident that Vienna is the greatest city in Europe and the only city other than Tokyo with a real chance in a head to head against NYC!",
       "mood": "Refreshed",
       "moodColor": "#4caf7d",
-      "photos": [],
+      "photos": [
+        {
+          "id": "192d2869-a47c-4a9f-9122-205cab640647",
+          "dataUrl": "",
+          "timestamp": "2026-03-23T18:00:10.433Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/16251b7d-b7fe-4336-a0f5-b082c0952fc4/192d2869-a47c-4a9f-9122-205cab640647.jpg"
+        }
+      ],
       "tags": [],
       "isPublished": true,
       "createdAt": "2026-03-22T05:26:28.839Z",
-      "updatedAt": "2026-03-22T07:32:16.373Z",
+      "updatedAt": "2026-03-23T18:01:02.499Z",
       "newsHeadline": "Trump says US will ‘obliterate’ Iran’s power plants if Strait of Hormuz not open before 48-hour deadline"
     }
   ],
-  "exportedAt": "2026-03-22T07:32:16.376Z",
+  "exportedAt": "2026-03-23T18:01:02.504Z",
   "totalEntries": 14
 }
