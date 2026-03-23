@@ -379,19 +379,19 @@
       "moodColor": "#4caf7d",
       "photos": [
         {
-          "id": "0f6a1102-2fcb-468e-b935-21afd2f213f4",
+          "id": "a0837cb9-d191-4de1-9981-d2606268aa34",
           "dataUrl": "",
-          "timestamp": "2026-03-23T18:01:27.612Z",
-          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/16251b7d-b7fe-4336-a0f5-b082c0952fc4/0f6a1102-2fcb-468e-b935-21afd2f213f4.jpg"
+          "timestamp": "2026-03-23T18:02:51.004Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/16251b7d-b7fe-4336-a0f5-b082c0952fc4/a0837cb9-d191-4de1-9981-d2606268aa34.jpg"
         }
       ],
       "tags": [],
       "isPublished": true,
       "createdAt": "2026-03-22T05:26:28.839Z",
-      "updatedAt": "2026-03-23T18:01:32.818Z",
+      "updatedAt": "2026-03-23T18:03:00.116Z",
       "newsHeadline": "Trump says US will ‘obliterate’ Iran’s power plants if Strait of Hormuz not open before 48-hour deadline"
     }
   ],
-  "exportedAt": "2026-03-23T18:01:32.825Z",
+  "exportedAt": "2026-03-23T18:03:00.131Z",
   "totalEntries": 14
 }
