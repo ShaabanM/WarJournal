@@ -390,8 +390,36 @@
       "createdAt": "2026-03-22T05:26:28.839Z",
       "updatedAt": "2026-03-23T18:03:00.116Z",
       "newsHeadline": "Trump says US will ‘obliterate’ Iran’s power plants if Strait of Hormuz not open before 48-hour deadline"
+    },
+    {
+      "id": "7ad19b22-f1f7-4d1c-9dbf-12577a3f45e1",
+      "timestamp": "2026-03-23T18:10:55.568Z",
+      "location": {
+        "lat": 48.121585904100534,
+        "lng": 14.878409518627251,
+        "placeName": "Amstetten, Graben, Katastralgemeinde Amstetten",
+        "city": "Amstetten",
+        "country": "Austria"
+      },
+      "title": "Bitte hier umsteigen",
+      "content": "After a beautiful 2 days in Vienna, we shall continue this semi vacation out in Germany! Pretty excited to go back to a country I briefly called home and loved so much. \n\nFirst stop is Munich, last time I was here was for Oktoberfest 2015! (Image attached of a younger me)\n\nSeems like there is some hope that the war is wrapping up… I honestly don’t buy it but let’s see what happens and even if it ends what does that mean if there is no regieme change in Iran ??",
+      "mood": "Sleepy",
+      "moodColor": "#c9b458",
+      "photos": [
+        {
+          "id": "88c8bbef-c807-4f27-946e-01d233c6225f",
+          "dataUrl": "",
+          "timestamp": "2026-03-23T18:10:52.790Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/7ad19b22-f1f7-4d1c-9dbf-12577a3f45e1/88c8bbef-c807-4f27-946e-01d233c6225f.jpg"
+        }
+      ],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-03-23T18:10:55.568Z",
+      "updatedAt": "2026-03-23T18:10:55.568Z",
+      "newsHeadline": "Trump says US and Iran in talks after he postpones strikes on power plants"
     }
   ],
-  "exportedAt": "2026-03-23T18:03:00.131Z",
-  "totalEntries": 14
+  "exportedAt": "2026-03-23T18:11:02.623Z",
+  "totalEntries": 15
 }
