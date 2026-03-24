@@ -418,8 +418,35 @@
       "createdAt": "2026-03-23T18:10:55.568Z",
       "updatedAt": "2026-03-23T18:10:55.568Z",
       "newsHeadline": "Trump says US and Iran in talks after he postpones strikes on power plants"
+    },
+    {
+      "id": "72c64cbf-1bbe-431a-a0af-5e77f5d57a78",
+      "timestamp": "2026-03-24T20:26:31.482Z",
+      "location": {
+        "lat": 48.13899829068114,
+        "lng": 11.559054429797772,
+        "placeName": "1, Goethestraße, Klinikviertel",
+        "city": "Munich",
+        "country": "Germany"
+      },
+      "title": "Munching in Munchen",
+      "content": "Pretty psychologically draining day in Munich as we ideate over what our medium term stability plan looks like so we can get back to taking care of our health and baby planning. I miss having a kitchen! \n\nToday we ate a ton of Bavarian meats and as write this I’m realizing that I have basically temporarily lost the ability to write anything interesting 🫠",
+      "mood": "Exhausted ",
+      "photos": [
+        {
+          "id": "7ea6ce2d-37d9-49eb-b5ae-e52cc7d24b35",
+          "dataUrl": "",
+          "timestamp": "2026-03-24T20:23:11.355Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/72c64cbf-1bbe-431a-a0af-5e77f5d57a78/7ea6ce2d-37d9-49eb-b5ae-e52cc7d24b35.jpg"
+        }
+      ],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-03-24T20:26:31.482Z",
+      "updatedAt": "2026-03-24T20:26:31.482Z",
+      "newsHeadline": "Trump says negotiations to end war happening 'right now' and Iran is 'talking sense'"
     }
   ],
-  "exportedAt": "2026-03-23T18:12:00.874Z",
-  "totalEntries": 15
+  "exportedAt": "2026-03-24T20:26:33.308Z",
+  "totalEntries": 16
 }
