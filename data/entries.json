@@ -445,8 +445,29 @@
       "createdAt": "2026-03-24T20:26:31.482Z",
       "updatedAt": "2026-03-24T20:26:31.482Z",
       "newsHeadline": "Trump says negotiations to end war happening 'right now' and Iran is 'talking sense'"
+    },
+    {
+      "id": "bf445513-dd00-4933-a323-01078694e57f",
+      "timestamp": "2026-03-25T20:16:12.595Z",
+      "location": {
+        "lat": 48.78860329697599,
+        "lng": 9.16473898314956,
+        "placeName": "Hotel Azenberg, 114-116, Seestraße",
+        "city": "Stuttgart",
+        "country": "Germany"
+      },
+      "title": "The old lab",
+      "content": "Back in Stuttgart after 11 years! It was incredible to see the max plank institute again and walk around the old neighborhood! But this made me realize two things\n\n(1) not only am I not as smart as I used to be, since this war started my intellectual capacity has been concerningly impacted. I am having many mental lapses and memory skips that concern me! \n\n(2) maybe I do like smaller towns after all",
+      "mood": "Dumb",
+      "moodColor": "#d97c7c",
+      "photos": [],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-03-25T20:16:12.595Z",
+      "updatedAt": "2026-03-25T20:16:12.595Z",
+      "newsHeadline": "Araghchi says no talks with US as Trump vows to ‘hit harder’"
     }
   ],
-  "exportedAt": "2026-03-24T20:26:33.308Z",
-  "totalEntries": 16
+  "exportedAt": "2026-03-25T20:16:12.616Z",
+  "totalEntries": 17
 }
