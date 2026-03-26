@@ -473,8 +473,36 @@
       "createdAt": "2026-03-25T20:16:12.595Z",
       "updatedAt": "2026-03-26T07:31:26.898Z",
       "newsHeadline": "Araghchi says no talks with US as Trump vows to ‘hit harder’"
+    },
+    {
+      "id": "ac34bff0-6dd9-4a95-a54e-54e955c3b48a",
+      "timestamp": "2026-03-26T21:21:03.811Z",
+      "location": {
+        "lat": 47.37203383101341,
+        "lng": 8.535360597324551,
+        "placeName": "citizenM Hotel, 42, Talacker",
+        "city": "Zurich",
+        "country": "Switzerland"
+      },
+      "title": "Too much cheese ",
+      "content": "We got to Zurich today after a 3 hour stressful train ride filled with various work fires! Ate way too much cheese fondue and did various touristy things. \n\nLooking forward to trying to get back into a health routine if and when this god damn war even ends",
+      "mood": "Unhealthy",
+      "moodColor": "#c9b458",
+      "photos": [
+        {
+          "id": "6b60e8ee-124b-46ac-9e49-5b10574e20fb",
+          "dataUrl": "",
+          "timestamp": "2026-03-26T21:18:59.742Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/ac34bff0-6dd9-4a95-a54e-54e955c3b48a/6b60e8ee-124b-46ac-9e49-5b10574e20fb.jpg"
+        }
+      ],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-03-26T21:21:03.811Z",
+      "updatedAt": "2026-03-26T21:21:03.811Z",
+      "newsHeadline": "US won’t strike Iranian energy sites for 10 days"
     }
   ],
-  "exportedAt": "2026-03-26T07:31:26.905Z",
-  "totalEntries": 17
+  "exportedAt": "2026-03-26T21:21:05.387Z",
+  "totalEntries": 18
 }
