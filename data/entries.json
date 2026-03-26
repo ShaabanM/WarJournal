@@ -460,14 +460,21 @@
       "content": "Back in Stuttgart after 11 years! It was incredible to see the max plank institute again and walk around the old neighborhood! But this made me realize two things\n\n(1) not only am I not as smart as I used to be, since this war started my intellectual capacity has been concerningly impacted. I am having many mental lapses and memory skips that concern me! \n\n(2) maybe I do like smaller towns after all",
       "mood": "Dumb",
       "moodColor": "#d97c7c",
-      "photos": [],
+      "photos": [
+        {
+          "id": "866acd29-0506-47b8-8822-16e0e8047e6c",
+          "dataUrl": "",
+          "timestamp": "2026-03-26T07:31:23.733Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/bf445513-dd00-4933-a323-01078694e57f/866acd29-0506-47b8-8822-16e0e8047e6c.jpg"
+        }
+      ],
       "tags": [],
       "isPublished": true,
       "createdAt": "2026-03-25T20:16:12.595Z",
-      "updatedAt": "2026-03-25T20:16:12.595Z",
+      "updatedAt": "2026-03-26T07:31:26.898Z",
       "newsHeadline": "Araghchi says no talks with US as Trump vows to ‘hit harder’"
     }
   ],
-  "exportedAt": "2026-03-25T20:16:12.616Z",
+  "exportedAt": "2026-03-26T07:31:26.905Z",
   "totalEntries": 17
 }
