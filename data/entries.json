@@ -501,8 +501,36 @@
       "createdAt": "2026-03-26T21:21:03.811Z",
       "updatedAt": "2026-03-26T21:21:03.811Z",
       "newsHeadline": "US won’t strike Iranian energy sites for 10 days"
+    },
+    {
+      "id": "72a4acb2-5d0a-4a81-919b-202ebe30f509",
+      "timestamp": "2026-03-28T08:45:16.426Z",
+      "location": {
+        "lat": 47.04981475173874,
+        "lng": 8.54896280559919,
+        "placeName": "2, Bahnhofstrasse, Vogelsang",
+        "city": "Goldau",
+        "country": "Switzerland"
+      },
+      "title": "Can’t enjoy the views",
+      "content": "Despite being in a beautiful train in Switzerland I can’t seem to enjoy the stunning views as I have so much work pile up due to the war that I can’t stop thinking about all the shit that has to get fixed despite the current instability. ",
+      "mood": "Angry ",
+      "moodColor": "#d4a574",
+      "photos": [
+        {
+          "id": "a27c5a56-b8b7-4848-83f2-846ca8755647",
+          "dataUrl": "",
+          "timestamp": "2026-03-28T08:43:54.321Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/72a4acb2-5d0a-4a81-919b-202ebe30f509/a27c5a56-b8b7-4848-83f2-846ca8755647.jpg"
+        }
+      ],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-03-28T08:45:16.426Z",
+      "updatedAt": "2026-03-28T08:45:16.426Z",
+      "newsHeadline": "Houthis enter the Iran war with missile strike against Israel "
     }
   ],
-  "exportedAt": "2026-03-26T21:21:05.387Z",
-  "totalEntries": 18
+  "exportedAt": "2026-03-28T08:45:25.868Z",
+  "totalEntries": 19
 }
