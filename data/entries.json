@@ -529,8 +529,36 @@
       "createdAt": "2026-03-28T08:45:16.426Z",
       "updatedAt": "2026-03-28T08:45:16.426Z",
       "newsHeadline": "Houthis enter the Iran war with missile strike against Israel "
+    },
+    {
+      "id": "32446992-939e-44cb-95e4-9b63c6698347",
+      "timestamp": "2026-03-29T06:27:48.415Z",
+      "location": {
+        "lat": 45.81429998901242,
+        "lng": 9.08289784771378,
+        "placeName": "Antica Darsena, 16, Lungo Lario Trieste",
+        "city": "Como",
+        "country": "Italy"
+      },
+      "title": "Day 30",
+      "content": "After 30 days of war 5 of them on vacation I find that the main thing I’m craving is simple routine, I want to see my friends on the weekend, chill on my couch play video games, get proper work hours in with deep focus. I guess you can call it return to normalcy. \n\nI think I’m not stressed about the lack of routine more about the lack of known date at which I would be able to return to normal life. Considering moving to London just to accelerate that return to routine. ",
+      "mood": "Bleh",
+      "moodColor": "#c9b458",
+      "photos": [
+        {
+          "id": "8c9d19d4-da84-48be-a2d5-e2775ff39a20",
+          "dataUrl": "",
+          "timestamp": "2026-03-29T06:22:59.239Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/32446992-939e-44cb-95e4-9b63c6698347/8c9d19d4-da84-48be-a2d5-e2775ff39a20.jpg"
+        }
+      ],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-03-29T06:27:48.415Z",
+      "updatedAt": "2026-03-29T06:27:48.415Z",
+      "newsHeadline": "Pakistan, Egypt, Turkiye, Saudi diplomats meet in Islamabad"
     }
   ],
-  "exportedAt": "2026-03-28T08:45:25.868Z",
-  "totalEntries": 19
+  "exportedAt": "2026-03-29T06:27:49.847Z",
+  "totalEntries": 20
 }
