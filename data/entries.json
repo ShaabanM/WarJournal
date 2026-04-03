@@ -557,8 +557,36 @@
       "createdAt": "2026-03-29T06:27:48.415Z",
       "updatedAt": "2026-03-29T06:27:48.415Z",
       "newsHeadline": "Pakistan, Egypt, Turkiye, Saudi diplomats meet in Islamabad"
+    },
+    {
+      "id": "110bf75c-ed49-4ada-849d-afa9a693288e",
+      "timestamp": "2026-04-03T13:13:37.125Z",
+      "location": {
+        "lat": 41.90821216565898,
+        "lng": 12.491967488400325,
+        "placeName": "Via Toscana, Ludovisi, Municipio Roma I",
+        "city": "Rome",
+        "country": "Italy"
+      },
+      "title": "Last Day in Rome",
+      "content": "Starting this week we will slowly start making our way north towards London. For dog paperwork reasons this means we have to start heading to Paris where we will finish his UK paperwork then take the tunnel. \n\nAs this week comes to a close I reflect back on it being an absurdly intense week. In order to get my work done I’ve had to graduate our tiny Rome hotel room into a full fledged office / lab. While this was great for my productivity it has meant that I have no space in my life to get away from work, as a result I find myself glued to my uncomfortable hotel chair for 14+ hours a day unable to shut off in the evenings or take a step back. As a fix will try to get an Airbnb with a bedroom for our Paris stay but for now we will head up to Florence for another hotel room centric high intensity work week.",
+      "mood": "Grateful",
+      "moodColor": "#a3b07c",
+      "photos": [
+        {
+          "id": "16a9bdc5-2755-4d9d-abe8-123dba9ad938",
+          "dataUrl": "",
+          "timestamp": "2026-04-03T13:09:42.918Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/110bf75c-ed49-4ada-849d-afa9a693288e/16a9bdc5-2755-4d9d-abe8-123dba9ad938.jpg"
+        }
+      ],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-04-03T13:13:37.125Z",
+      "updatedAt": "2026-04-03T13:13:37.125Z",
+      "newsHeadline": "Kuwait desalination plant, oil refinery hit by missile and drone strikes"
     }
   ],
-  "exportedAt": "2026-03-29T06:27:49.847Z",
-  "totalEntries": 20
+  "exportedAt": "2026-04-03T13:13:38.572Z",
+  "totalEntries": 21
 }
