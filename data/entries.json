@@ -585,8 +585,36 @@
       "createdAt": "2026-04-03T13:13:37.125Z",
       "updatedAt": "2026-04-03T13:13:37.125Z",
       "newsHeadline": "Kuwait desalination plant, oil refinery hit by missile and drone strikes"
+    },
+    {
+      "id": "3a9ae542-e66c-4e55-bbde-c42971fa3e01",
+      "timestamp": "2026-04-04T20:59:32.805Z",
+      "location": {
+        "lat": 43.76770270312036,
+        "lng": 11.261086810274426,
+        "placeName": "Palazzo Spinelli, Borgo Santa Croce, Quartiere 1",
+        "city": "Florence",
+        "country": "Italy"
+      },
+      "title": "Too many tourists (myself included)",
+      "content": "Today we are back in Florence after three years. This is the city where I first began reflecting on the beauty of art and the meaning of taste. One might say this is the place that converted me from someone who once ignorantly dismissed artistic pursuits—those lacking explicit productive outcomes—into someone who now deeply values them.\n\nSo being back here, at a time when I feel somewhat displaced and the city itself is struggling under the weight of overtourism, brings mixed feelings.",
+      "mood": "Bleh",
+      "moodColor": "#d4a574",
+      "photos": [
+        {
+          "id": "93dff6eb-beda-4ae6-a6b9-cf6aee38c646",
+          "dataUrl": "",
+          "timestamp": "2026-04-04T20:59:08.225Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/3a9ae542-e66c-4e55-bbde-c42971fa3e01/93dff6eb-beda-4ae6-a6b9-cf6aee38c646.jpg"
+        }
+      ],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-04-04T20:59:32.805Z",
+      "updatedAt": "2026-04-04T20:59:32.805Z",
+      "newsHeadline": "Iran rejects Trump’s ‘helpless, nervous’ 48-hour ultimatum"
     }
   ],
-  "exportedAt": "2026-04-03T13:13:38.572Z",
-  "totalEntries": 21
+  "exportedAt": "2026-04-04T20:59:34.502Z",
+  "totalEntries": 22
 }
