@@ -613,8 +613,36 @@
       "createdAt": "2026-04-04T20:59:32.805Z",
       "updatedAt": "2026-04-04T20:59:32.805Z",
       "newsHeadline": "Iran rejects Trump’s ‘helpless, nervous’ 48-hour ultimatum"
+    },
+    {
+      "id": "87191427-63b5-48c1-86f5-070e20bee40e",
+      "timestamp": "2026-04-12T20:06:38.539Z",
+      "location": {
+        "lat": 48.838224828996175,
+        "lng": 2.3495289967401494,
+        "placeName": "16, Rue Pascal, Quartier du Val-de-Grâce",
+        "city": "Paris",
+        "country": "France"
+      },
+      "title": "Finally… a couch!",
+      "content": "After living out of hotels since November 18th we finally made it to an Airbnb in Paris! \n\nThis taught me that having a couch is an insanely underrated privilege and that a dedicated workspace can easily 2x your productivity and your mental health. ",
+      "mood": "Relaxed",
+      "moodColor": "#4caf7d",
+      "photos": [
+        {
+          "id": "3696bbc5-1368-410d-a1b6-a2c4d50d0384",
+          "dataUrl": "",
+          "timestamp": "2026-04-12T20:06:28.253Z",
+          "remoteUrl": "https://raw.githubusercontent.com/ShaabanM/WarJournal/main/data/photos/87191427-63b5-48c1-86f5-070e20bee40e/3696bbc5-1368-410d-a1b6-a2c4d50d0384.jpg"
+        }
+      ],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-04-12T20:06:38.539Z",
+      "updatedAt": "2026-04-12T20:06:38.539Z",
+      "newsHeadline": "Trump says US will blockade Strait of Hormuz after Iran talks end without a deal"
     }
   ],
-  "exportedAt": "2026-04-04T20:59:34.502Z",
-  "totalEntries": 22
+  "exportedAt": "2026-04-12T20:06:40.056Z",
+  "totalEntries": 23
 }
