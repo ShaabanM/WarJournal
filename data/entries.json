@@ -641,8 +641,32 @@
       "createdAt": "2026-04-12T20:06:38.539Z",
       "updatedAt": "2026-04-12T20:06:38.539Z",
       "newsHeadline": "Trump says US will blockade Strait of Hormuz after Iran talks end without a deal"
+    },
+    {
+      "id": "e8308a86-5f9f-4bcd-a8de-ecfbe8174984",
+      "timestamp": "2026-04-24T04:12:09.580Z",
+      "location": {
+        "lat": 25.262518891330764,
+        "lng": 51.61491506833363,
+        "placeName": "B1, Lower Ground (LG) carpark route, Doha",
+        "country": "Qatar"
+      },
+      "title": "Back in Doha!",
+      "content": "Back in Doha ",
+      "photos": [
+        {
+          "id": "87466b23-5a1d-460d-bdbf-0d5b882c71e4",
+          "dataUrl": "",
+          "timestamp": "2026-04-24T04:11:42.216Z"
+        }
+      ],
+      "tags": [],
+      "isPublished": true,
+      "createdAt": "2026-04-24T04:12:09.580Z",
+      "updatedAt": "2026-04-24T04:12:09.580Z",
+      "manualDate": "2026-04-19T09:00:00.000Z"
     }
   ],
-  "exportedAt": "2026-04-12T20:06:40.056Z",
-  "totalEntries": 23
+  "exportedAt": "2026-04-24T04:12:26.043Z",
+  "totalEntries": 24
 }
